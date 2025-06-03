@@ -35,7 +35,9 @@ def log_event(event_type, email, extra=""):
     timestamp = get_vn_time()
     log_line = f"[{timestamp}] EVENT: {event_type.upper()} | EMAIL: {email}"
     if extra:
-        log_line += f" | INFO: {extra.strip()}"
+        # Loại bỏ mọi ký tự xuống dòng tiềm ẩn
+        extra = extra.replace("\n", "").replace("\r", "").strip()
+        log_line += f" | INFO: {extra}"
     print(log_line)
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(log_line + "\n")
