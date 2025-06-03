@@ -1,6 +1,7 @@
 import smtplib
 from email.message import EmailMessage
 import time
+import csv
 
 SMTP_SERVER = "smtp.zoho.com"
 SMTP_PORT = 465
@@ -8,36 +9,13 @@ EMAIL_SENDER = "contact@infoasia.com.vn"
 EMAIL_PASSWORD = "56nq cmDF NKCQ"
 
 # Danh sách người nhận
-email_list = [
-    {
-        "ID": "1",
-        "Full Name": "Thành Tâm",
-        "Email": "tam.mapp04@gmail.com",
-        "Company": "InfoAsia",
-        "Phone": "0909123400"
-    },
-    {
-        "ID": "2",
-        "Full Name": "Khang Tàu Khựa",
-        "Email": "khangndse180170@fpt.edu.vn",
-        "Company": "InfoAsia",
-        "Phone": "0909123401"
-    },
-    {
-        "ID": "3",
-        "Full Name": "Thiện VĐ",
-        "Email": "thienvd@outlook.com",
-        "Company": "InfoAsia",
-        "Phone": "0909123402"
-    },
-    {
-        "ID": "4",
-        "Full Name": "Điền NT",
-        "Email": "diennt@infoasia.com",
-        "Company": "InfoAsia",
-        "Phone": "0909123403"
-    }
-]
+email_list = []
+with open("email_list.csv", newline="", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        email_list.append(row)
+
+
 with open("email_template.html", "r", encoding="utf-8") as f:
     html_content = f.read()
 # 
@@ -63,9 +41,12 @@ with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as smtp:
     smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
 
     for receiver in email_list:
-        msg = create_personalized_email(receiver)
-        smtp.send_message(msg)
-        print(f"✅ Đã gửi tới: {receiver}")
+        try:
+            msg = create_personalized_email(receiver)
+            smtp.send_message(msg)
+            print(f"✅ Đã gửi tới: {receiver['Email']} ({receiver['Full Name']})")
+        except Exception as e:
+            print(f"❌ Lỗi gửi tới: {receiver['Email']} - {e}")
         time.sleep(5)
 
 print("🎉 Gửi xong toàn bộ email HTML!")

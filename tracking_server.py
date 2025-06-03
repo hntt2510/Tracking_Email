@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 LOG_DIR = "tracking_logs"
 LOG_FILE = os.path.join(LOG_DIR, "tracking.log")
-RENDER_LOG_URL = "https://emailtracking-4a79.onrender.com/download_log"
+RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 

@@ -1,83 +1,78 @@
 import os
 import csv
 import re
-from collections import defaultdict
 
-# Đường dẫn file
+
+# Danh sách email đã gửi từ send_email.py
+sent_emails = []
+with open("email_list.csv", newline="", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        sent_emails.append(row["Email"].strip().lower())
+
+# Đường dẫn
 log_file_path = r"D:\ThanhTam\send\tracking_logs\tracking.log"
 report_file_path = r"D:\ThanhTam\send\tracking_logs\report.csv"
 
-# Tạo thư mục nếu chưa có
-os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
-
-# Xóa file cũ nếu có
-if os.path.exists(report_file_path):
-    os.remove(report_file_path)
-
-# Regex mới khớp format hiện tại
+# Regex theo format hiện tại
 pattern = re.compile(
     r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
     r"(?: \| INFO: (link\d) -> (.*))?"
 )
 
+# Dữ liệu thống kê khởi tạo
+stats = {
+    email.lower(): {
+        "status": False,
+        "open": False,
+        "click1": False,
+        "click2": False
+    }
+    for email in sent_emails
+}
 
-# Link cần tracking
-link1 = "https://infoasia.com.vn/"
-link2 = "https://zalo.me/0933823946"
+# Đọc tracking log (nếu có)
+if os.path.exists(log_file_path):
+    with open(log_file_path, encoding="utf-8") as f:
+        for line in f:
+            match = pattern.search(line)
+            if match:
+                _, action, email_raw, link_name, url = match.groups()
+                if not email_raw:
+                    continue
+                email = email_raw.strip().lower()
+                if email not in stats:
+                    continue  # chỉ thống kê những email đã gửi
 
-# Thống kê theo email
-stats = defaultdict(lambda: {
-    "open": False,
-    "click1": False,
-    "click2": False
-})
+                stats[email]["status"] = True  # có log = đã phản hồi
 
-# Đọc log
-if not os.path.exists(log_file_path):
-    raise FileNotFoundError("Không tìm thấy file log.")
+                if action == "OPEN":
+                    stats[email]["open"] = True
+                elif action == "CLICK":
+                    if link_name == "link1":
+                        stats[email]["click1"] = True
+                    elif link_name == "link2":
+                        stats[email]["click2"] = True
 
-with open(log_file_path, encoding="utf-8") as f:
-    for line in f:
-        match = pattern.search(line)
-        if match:
-            _, action, email_raw, link_name, url = match.groups()
-            email = email_raw.strip().lower()
+# Ghi báo cáo
+os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
 
-            if action == "OPEN":
-                stats[email]["open"] = True
-            elif action == "CLICK":
-                if link_name == "link1":
-                    stats[email]["click1"] = True
-                if link_name == "link2":
-                    stats[email]["click2"] = True
-
-            email = email_raw.strip().lower().split()[0]  # Làm sạch email để bỏ phần 'link1/link2'
-            if action == "OPEN":
-                stats[email]["open"] = True
-            elif action == "CLICK" and url:
-                url = url.strip()
-                if link1 in url:
-                    stats[email]["click1"] = True
-                if link2 in url:
-                    stats[email]["click2"] = True
-
-# Ghi file báo cáo
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
-    fieldnames = ["STT", "Email", "Status", "Check", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
+    fieldnames = ["STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
 
-    for i, (email, data) in enumerate(stats.items(), 1):
+    for i, email in enumerate(sent_emails, 1):
+        e = email.lower()
         writer.writerow({
             "STT": i,
             "Email": email,
-            "Status": str(data["open"]),
-            "Check": str(data["click1"] or data["click2"]),
-            "IsOpen": str(data["open"]),
-            "Link1": link1,
-            "IsClick1": str(data["click1"]),
-            "Link2": link2,
-            "IsClick2": str(data["click2"]),
+            "Status": str(stats[e]["status"]),
+            "IsOpen": str(stats[e]["open"]),
+            "Link1": "https://infoasia.com.vn/",
+            "IsClick1": str(stats[e]["click1"]),
+            "Link2": "https://zalo.me/0933823946",
+            "IsClick2": str(stats[e]["click2"]),
         })
 
 print(f"✅ Báo cáo đã được lưu tại: {report_file_path}")
