@@ -2,22 +2,29 @@ import os
 import csv
 import re
 
-# Đọc danh sách email đã gửi
+# Danh sách email đã gửi từ email_list.csv
 sent_emails = []
 with open("email_list.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         sent_emails.append(row["Email"].strip().lower())
 
-# File path
+# Đường dẫn file
 log_file_path = r"D:\ThanhTam\send\tracking_logs\tracking.log"
 report_file_path = r"D:\ThanhTam\send\tracking_logs\report.csv"
 
-# Xóa report cũ
+# Xóa report cũ nếu có
 if os.path.exists(report_file_path):
     os.remove(report_file_path)
 
-# Khởi tạo thống kê
+# Regex hỗ trợ multiline
+pattern = re.compile(
+    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
+    r"(?: \| INFO: (link\d) -> (.*))?",
+    re.DOTALL
+)
+
+# Dữ liệu thống kê
 stats = {
     email: {
         "status": False,
@@ -28,45 +35,37 @@ stats = {
     for email in sent_emails
 }
 
-# Regex mạnh hơn, dùng DOTALL để match \n
-pattern = re.compile(
-    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
-    r"(?: \| INFO: (link\d) -> (.*?))?$",
-    re.DOTALL
-)
-
-# Đọc file log đầy đủ (multiline)
+# Đọc toàn bộ log rồi xử lý từng block
 if os.path.exists(log_file_path):
     with open(log_file_path, encoding="utf-8") as f:
-        lines = f.read().split("]\n")  # chia từng entry theo dòng log
+        raw = f.read()
 
-        for chunk in lines:
-            chunk = chunk.strip()
-            if not chunk:
+    # Gộp những dòng log bị xuống dòng ở phần URL
+    raw = raw.replace("-> \n", "-> ")
+
+    # Cắt từng entry log
+    entries = raw.strip().split("]\n")
+    for entry in entries:
+        if not entry.strip():
+            continue
+        entry += "]"
+        match = pattern.search(entry)
+        if match:
+            _, action, email_raw, link_name, url = match.groups()
+            email = email_raw.strip().lower()
+            if email not in stats:
                 continue
-            chunk += "]"  # thêm lại ] bị tách mất
+            stats[email]["status"] = True
+            if action == "OPEN":
+                stats[email]["open"] = True
+            elif action == "CLICK":
+                if (link_name or "").lower() == "link1":
+                    stats[email]["click1"] = True
+                elif (link_name or "").lower() == "link2":
+                    stats[email]["click2"] = True
 
-            match = pattern.search(chunk)
-            if match:
-                _, action, email_raw, link_name, url = match.groups()
-                if not email_raw:
-                    continue
-                email = email_raw.strip().lower()
-                if email not in stats:
-                    continue
-
-                stats[email]["status"] = True
-                if action == "OPEN":
-                    stats[email]["open"] = True
-                elif action == "CLICK":
-                    if (link_name or "").lower() == "link1":
-                        stats[email]["click1"] = True
-                    elif (link_name or "").lower() == "link2":
-                        stats[email]["click2"] = True
-
-# Ghi file CSV
+# Ghi report
 os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
-
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
     fieldnames = ["STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
