@@ -20,9 +20,9 @@ if os.path.exists(report_file_path):
 # Regex hỗ trợ multiline
 pattern = re.compile(
     r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
-    r"(?: \| INFO: (link\d) -> (.*))?",
-    re.DOTALL
+    r"(?: \| INFO: (link\d) -> (.*))?"
 )
+
 
 # Dữ liệu thống kê
 stats = {

@@ -43,9 +43,11 @@ def get_vn_time():
 
 # ✅ Ghi log sự kiện
 def log_event(event_type, email, extra=""):
-    timestamp = get_vn_time()
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_line = f"[{timestamp}] EVENT: {event_type.upper()} | EMAIL: {email}"
     if extra:
+        # Xóa ký tự xuống dòng nếu có
+        extra = extra.replace("\n", "").replace("\r", "").strip()
         log_line += f" | INFO: {extra}"
     print(log_line)
     with open(LOG_FILE, "a", encoding="utf-8") as f:
