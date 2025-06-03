@@ -12,10 +12,13 @@ PIXEL_FILE = os.path.join(LOG_DIR, "pixel.gif")
 RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
 
 # 🔥 Xoá log cũ và pixel cache nếu có
-for path in [LOG_FILE, PIXEL_FILE]:
-    if os.path.exists(path):
-        os.remove(path)
-        print(f"🧹 Đã xoá cache: {path}")
+# Chỉ xóa nếu đang chạy LOCAL
+if os.getenv("RENDER") is None:
+    for path in [LOG_FILE, PIXEL_FILE]:
+        if os.path.exists(path):
+            os.remove(path)
+            print(f"🧹 Đã xoá cache: {path}")
+
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
