@@ -17,14 +17,12 @@ report_file_path = r"D:\ThanhTam\send\tracking_logs\report.csv"
 if os.path.exists(report_file_path):
     os.remove(report_file_path)
 
-# Regex hỗ trợ multiline
+# Regex an toàn hơn (tránh lỗi vì dấu | và xuống dòng)
 pattern = re.compile(
-    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
-    r"(?: \| INFO: (link\d) -> (.*))?"
+    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: ([^\|]+)(?: \| INFO: (link\d) -> (.+))?"
 )
 
-
-# Dữ liệu thống kê
+# Khởi tạo dữ liệu thống kê mặc định
 stats = {
     email: {
         "status": False,
@@ -35,26 +33,30 @@ stats = {
     for email in sent_emails
 }
 
-# Đọc toàn bộ log rồi xử lý từng block
+# Đọc file log nếu có
 if os.path.exists(log_file_path):
     with open(log_file_path, encoding="utf-8") as f:
         raw = f.read()
 
-    # Gộp những dòng log bị xuống dòng ở phần URL
-    raw = raw.replace("-> \n", "-> ")
+    # Xử lý lỗi xuống dòng giữa INFO
+    raw = raw.replace("-> \n", "-> ").replace("->\n", "-> ")
 
-    # Cắt từng entry log
+    # Cắt từng dòng log riêng
     entries = raw.strip().split("]\n")
     for entry in entries:
-        if not entry.strip():
+        entry = entry.strip()
+        if not entry:
             continue
-        entry += "]"
+        if not entry.endswith("]"):
+            entry += "]"
+
         match = pattern.search(entry)
         if match:
             _, action, email_raw, link_name, url = match.groups()
             email = email_raw.strip().lower()
             if email not in stats:
-                continue
+                continue  # Chỉ thống kê email đã gửi
+
             stats[email]["status"] = True
             if action == "OPEN":
                 stats[email]["open"] = True
@@ -64,8 +66,9 @@ if os.path.exists(log_file_path):
                 elif (link_name or "").lower() == "link2":
                     stats[email]["click2"] = True
 
-# Ghi report
+# Ghi file báo cáo
 os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
+
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
     fieldnames = ["STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
