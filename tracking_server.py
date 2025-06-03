@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, send_file, Response
 from datetime import datetime
+import pytz
 import os
 import requests
 
@@ -7,7 +8,14 @@ app = Flask(__name__)
 
 LOG_DIR = "tracking_logs"
 LOG_FILE = os.path.join(LOG_DIR, "tracking.log")
+PIXEL_FILE = os.path.join(LOG_DIR, "pixel.gif")
 RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
+
+# 🔥 Xoá log cũ và pixel cache nếu có
+for path in [LOG_FILE, PIXEL_FILE]:
+    if os.path.exists(path):
+        os.remove(path)
+        print(f"🧹 Đã xoá cache: {path}")
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -25,7 +33,8 @@ if not os.path.exists(LOG_FILE):
         print("⚠️ Lỗi kết nối Render:", e)
 
 def log_event(event_type, email, extra=""):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tz = pytz.timezone("Asia/Ho_Chi_Minh")
+    timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
     log_line = f"[{timestamp}] EVENT: {event_type.upper()} | EMAIL: {email}"
     if extra:
         log_line += f" | INFO: {extra}"
@@ -37,15 +46,15 @@ def log_event(event_type, email, extra=""):
 def track_open():
     email = request.args.get("email", "unknown")
     log_event("open", email)
-    gif_path = os.path.join(LOG_DIR, "pixel.gif")
-    if not os.path.exists(gif_path):
-        with open(gif_path, "wb") as f:
+
+    if not os.path.exists(PIXEL_FILE):
+        with open(PIXEL_FILE, "wb") as f:
             f.write(
                 b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\xff\xff\xff!"
                 b"\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01"
                 b"\x00\x00\x02\x02L\x01\x00;"
             )
-    return send_file(gif_path, mimetype="image/gif")
+    return send_file(PIXEL_FILE, mimetype="image/gif")
 
 @app.route("/click")
 def track_click():
