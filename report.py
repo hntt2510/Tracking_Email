@@ -2,28 +2,22 @@ import os
 import csv
 import re
 
-# Danh sách email đã gửi từ email_list.csv
+# Đọc danh sách email đã gửi
 sent_emails = []
 with open("email_list.csv", newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         sent_emails.append(row["Email"].strip().lower())
 
-# Đường dẫn file
+# File path
 log_file_path = r"D:\ThanhTam\send\tracking_logs\tracking.log"
 report_file_path = r"D:\ThanhTam\send\tracking_logs\report.csv"
 
-# Xóa file report cũ nếu có
+# Xóa report cũ
 if os.path.exists(report_file_path):
     os.remove(report_file_path)
 
-# Regex khớp format log hiện tại
-pattern = re.compile(
-    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
-    r"(?: \| INFO: (link\d) -> (.*))?"
-)
-
-# Khởi tạo dữ liệu thống kê mặc định
+# Khởi tạo thống kê
 stats = {
     email: {
         "status": False,
@@ -34,21 +28,34 @@ stats = {
     for email in sent_emails
 }
 
-# Đọc file log nếu có
+# Regex mạnh hơn, dùng DOTALL để match \n
+pattern = re.compile(
+    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
+    r"(?: \| INFO: (link\d) -> (.*?))?$",
+    re.DOTALL
+)
+
+# Đọc file log đầy đủ (multiline)
 if os.path.exists(log_file_path):
     with open(log_file_path, encoding="utf-8") as f:
-        for line in f:
-            match = pattern.search(line)
+        lines = f.read().split("]\n")  # chia từng entry theo dòng log
+
+        for chunk in lines:
+            chunk = chunk.strip()
+            if not chunk:
+                continue
+            chunk += "]"  # thêm lại ] bị tách mất
+
+            match = pattern.search(chunk)
             if match:
                 _, action, email_raw, link_name, url = match.groups()
                 if not email_raw:
                     continue
                 email = email_raw.strip().lower()
                 if email not in stats:
-                    continue  # Chỉ thống kê email đã gửi
+                    continue
 
                 stats[email]["status"] = True
-
                 if action == "OPEN":
                     stats[email]["open"] = True
                 elif action == "CLICK":
@@ -57,7 +64,7 @@ if os.path.exists(log_file_path):
                     elif (link_name or "").lower() == "link2":
                         stats[email]["click2"] = True
 
-# Ghi file báo cáo
+# Ghi file CSV
 os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
 
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
