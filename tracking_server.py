@@ -1,8 +1,9 @@
 from flask import Flask, request, redirect, send_file, Response
 from datetime import datetime
-import pytz
 import os
 import requests
+import pytz
+import traceback
 
 app = Flask(__name__)
 
@@ -11,33 +12,38 @@ LOG_FILE = os.path.join(LOG_DIR, "tracking.log")
 PIXEL_FILE = os.path.join(LOG_DIR, "pixel.gif")
 RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
 
-# 🔥 Xoá log cũ và pixel cache nếu có
-# Chỉ xóa nếu đang chạy LOCAL
-if os.getenv("RENDER") is None:
-    for path in [LOG_FILE, PIXEL_FILE]:
-        if os.path.exists(path):
-            os.remove(path)
-            print(f"🧹 Đã xoá cache: {path}")
-
-
+# Khởi tạo folder nếu chưa có
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Nếu chạy local & chưa có log → tải từ Render
-if not os.path.exists(LOG_FILE):
-    try:
-        r = requests.get(RENDER_LOG_URL)
-        if r.status_code == 200:
-            with open(LOG_FILE, "wb") as f:
-                f.write(r.content)
-            print("✅ Đã tải tracking.log từ Render.")
-        else:
-            print("⚠️ Không thể tải log từ Render.")
-    except Exception as e:
-        print("⚠️ Lỗi kết nối Render:", e)
+# 🔥 Nếu chạy LOCAL → xóa cache và tải log từ Render
+try:
+    if os.getenv("RENDER") is None:
+        for path in [LOG_FILE, PIXEL_FILE]:
+            if os.path.exists(path):
+                os.remove(path)
+                print(f"🧹 Đã xóa: {path}")
 
-def log_event(event_type, email, extra=""):
+        if not os.path.exists(LOG_FILE):
+            r = requests.get(RENDER_LOG_URL)
+            if r.status_code == 200:
+                with open(LOG_FILE, "wb") as f:
+                    f.write(r.content)
+                print("✅ Đã tải tracking.log từ Render.")
+            else:
+                print("⚠️ Không thể tải log từ Render.")
+except Exception as e:
+    print("🔥 Lỗi khi khởi tạo môi trường:")
+    traceback.print_exc()
+    exit(1)
+
+# ✅ Lấy giờ Việt Nam
+def get_vn_time():
     tz = pytz.timezone("Asia/Ho_Chi_Minh")
-    timestamp = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+
+# ✅ Ghi log sự kiện
+def log_event(event_type, email, extra=""):
+    timestamp = get_vn_time()
     log_line = f"[{timestamp}] EVENT: {event_type.upper()} | EMAIL: {email}"
     if extra:
         log_line += f" | INFO: {extra}"
@@ -45,6 +51,7 @@ def log_event(event_type, email, extra=""):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(log_line + "\n")
 
+# ✅ Ghi open bằng pixel.gif
 @app.route("/open")
 def track_open():
     email = request.args.get("email", "unknown")
@@ -59,6 +66,7 @@ def track_open():
             )
     return send_file(PIXEL_FILE, mimetype="image/gif")
 
+# ✅ Ghi click & redirect
 @app.route("/click")
 def track_click():
     email = request.args.get("email", "unknown")
@@ -76,6 +84,7 @@ def track_click():
     log_event("click", email, f"{link_name} -> {target_url}")
     return redirect(target_url)
 
+# ✅ Xem log trực tiếp
 @app.route("/log")
 def view_log():
     try:
@@ -85,6 +94,7 @@ def view_log():
     except Exception as e:
         return f"Lỗi khi đọc log: {e}"
 
+# ✅ Tải log
 @app.route("/download_log")
 def download_log():
     try:
@@ -92,6 +102,6 @@ def download_log():
     except Exception as e:
         return f"Lỗi khi tải log: {e}"
 
-# LOCAL RUN
+# ✅ Chạy local
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

@@ -2,5 +2,5 @@ services:
   - type: web
     name: tracking-server
     env: python
-    buildCommand: ""
-    startCommand: python tracking_server.py
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn tracking_server:app
