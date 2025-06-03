@@ -2,27 +2,21 @@ import os
 import csv
 import re
 
-# Danh sách email đã gửi từ email_list.csv
+email_list_file = "email_list.csv"
+log_file_path = "tracking_logs/tracking.log"
+report_file_path = "tracking_logs/report.csv"
+
 sent_emails = []
-with open("email_list.csv", newline="", encoding="utf-8") as f:
+with open(email_list_file, newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
         sent_emails.append(row["Email"].strip().lower())
 
-# Đường dẫn file
-log_file_path = r"D:\ThanhTam\send\tracking_logs\tracking.log"
-report_file_path = r"D:\ThanhTam\send\tracking_logs\report.csv"
-
-# Xóa report cũ nếu có
-if os.path.exists(report_file_path):
-    os.remove(report_file_path)
-
-# Regex an toàn hơn (tránh lỗi vì dấu | và xuống dòng)
 pattern = re.compile(
-    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: ([^\|]+)(?: \| INFO: (link\d) -> (.+))?"
+    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
+    r"(?: \| INFO: (link\d) -> (.*))?"
 )
 
-# Khởi tạo dữ liệu thống kê mặc định
 stats = {
     email: {
         "status": False,
@@ -33,58 +27,43 @@ stats = {
     for email in sent_emails
 }
 
-# Đọc file log nếu có
 if os.path.exists(log_file_path):
     with open(log_file_path, encoding="utf-8") as f:
-        raw = f.read()
-
-    # Xử lý lỗi xuống dòng giữa INFO
-    raw = raw.replace("-> \n", "-> ").replace("->\n", "-> ")
-
-    # Cắt từng dòng log riêng
-    entries = raw.strip().split("]\n")
-    for entry in entries:
-        entry = entry.strip()
-        if not entry:
-            continue
-        if not entry.endswith("]"):
-            entry += "]"
-
-        match = pattern.search(entry)
-        if match:
+        for line in f:
+            match = pattern.search(line)
+            if not match:
+                continue
             _, action, email_raw, link_name, url = match.groups()
             email = email_raw.strip().lower()
             if email not in stats:
-                continue  # Chỉ thống kê email đã gửi
-
+                continue
             stats[email]["status"] = True
             if action == "OPEN":
                 stats[email]["open"] = True
             elif action == "CLICK":
-                if (link_name or "").lower() == "link1":
+                link_name = (link_name or "").strip().lower()
+                if link_name == "link1":
                     stats[email]["click1"] = True
-                elif (link_name or "").lower() == "link2":
+                elif link_name == "link2":
                     stats[email]["click2"] = True
 
-# Ghi file báo cáo
 os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
-
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
-    fieldnames = ["STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer = csv.DictWriter(csvfile, fieldnames=[
+        "STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"
+    ])
     writer.writeheader()
-
     for i, email in enumerate(sent_emails, 1):
-        e = email.lower()
+        data = stats[email]
         writer.writerow({
             "STT": i,
             "Email": email,
-            "Status": str(stats[e]["status"]),
-            "IsOpen": str(stats[e]["open"]),
+            "Status": str(data["status"]),
+            "IsOpen": str(data["open"]),
             "Link1": "https://infoasia.com.vn/",
-            "IsClick1": str(stats[e]["click1"]),
+            "IsClick1": str(data["click1"]),
             "Link2": "https://zalo.me/0933823946",
-            "IsClick2": str(stats[e]["click2"]),
+            "IsClick2": str(data["click2"])
         })
 
 print(f"✅ Báo cáo đã được lưu tại: {report_file_path}")
