@@ -1,3 +1,7 @@
+from pathlib import Path
+
+# Tạo phiên bản mới của report.py có khả năng merge report cũ và batch mới
+new_report_py = """
 import os
 import csv
 import re
@@ -12,8 +16,8 @@ link2 = "https://zalo.me/0933823946"
 
 # === Regex log tracking_server.py ===
 log_pattern = re.compile(
-    r"\[(.*?)\] EVENT: (OPEN|CLICK) \| EMAIL: (.*?)"
-    r"(?: \| INFO: (link1|link2) -> .*)?$"
+    r"\\[(.*?)\\] EVENT: (OPEN|CLICK) \\| EMAIL: (.*?)"
+    r"(?: \\| INFO: (link1|link2) -> .*)?$"
 )
 
 # === Đọc danh sách email mới ===
@@ -23,27 +27,29 @@ with open(email_list_path, newline="", encoding="utf-8") as f:
     for row in reader:
         sent_emails.append(row["Email"].strip().lower())
 
-# === Khởi tạo dữ liệu thống kê (mặc định TRUE vì đã gửi) ===
-stats = {
-    email: {
-        "status": True,
-        "open": False,
-        "click1": False,
-        "click2": False
-    }
-    for email in sent_emails
-}
-
-# === Nếu đã có report trước đó → giữ các flag TRUE cũ ===
+# === Đọc report cũ nếu có ===
+existing_stats = {}
 if os.path.exists(report_file_path):
     with open(report_file_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             email = row["Email"].strip().lower()
-            if email in stats:
-                stats[email]["open"] = row["IsOpen"] == "TRUE" or stats[email]["open"]
-                stats[email]["click1"] = row["IsClick1"] == "TRUE" or stats[email]["click1"]
-                stats[email]["click2"] = row["IsClick2"] == "TRUE" or stats[email]["click2"]
+            existing_stats[email] = {
+                "status": row["Status"] == "TRUE",
+                "open": row["IsOpen"] == "TRUE",
+                "click1": row["IsClick1"] == "TRUE",
+                "click2": row["IsClick2"] == "TRUE"
+            }
+
+# === Khởi tạo dữ liệu thống kê (ưu tiên từ report cũ nếu có) ===
+stats = {}
+for email in sent_emails:
+    stats[email] = {
+        "status": True,
+        "open": existing_stats.get(email, {}).get("open", False),
+        "click1": existing_stats.get(email, {}).get("click1", False),
+        "click2": existing_stats.get(email, {}).get("click2", False),
+    }
 
 # === Đọc tracking log mới ===
 if os.path.exists(log_file_path):
@@ -55,7 +61,12 @@ if os.path.exists(log_file_path):
             _, action, raw_email, link_name = match.groups()
             email = raw_email.strip().lower()
             if email not in stats:
-                continue
+                stats[email] = {
+                    "status": True,
+                    "open": False,
+                    "click1": False,
+                    "click2": False,
+                }
             if action == "OPEN":
                 stats[email]["open"] = True
             elif action == "CLICK":
@@ -64,24 +75,33 @@ if os.path.exists(log_file_path):
                 elif link_name == "link2":
                     stats[email]["click2"] = True
 
-# === Ghi file báo cáo ===
-os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
+# === Gộp tất cả email từ report cũ và mới ===
+all_emails = set(stats.keys()) | set(existing_stats.keys())
 
+# === Ghi file báo cáo mới ===
+os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
     fieldnames = ["STT", "Email", "Status", "IsOpen", "Link1", "IsClick1", "Link2", "IsClick2"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
 
-    for i, email in enumerate(sent_emails, 1):
+    for i, email in enumerate(sorted(all_emails), 1):
+        s = stats.get(email) or existing_stats[email]
         writer.writerow({
             "STT": i,
             "Email": email,
             "Status": "TRUE",
-            "IsOpen": str(stats[email]["open"]).upper(),
+            "IsOpen": str(s["open"]).upper(),
             "Link1": link1,
-            "IsClick1": str(stats[email]["click1"]).upper(),
+            "IsClick1": str(s["click1"]).upper(),
             "Link2": link2,
-            "IsClick2": str(stats[email]["click2"]).upper(),
+            "IsClick2": str(s["click2"]).upper(),
         })
 
-print(f"✅ Báo cáo đã được cập nhật tại: {report_file_path}")
+print(f"✅ Báo cáo đã được cập nhật và giữ nguyên dữ liệu cũ tại: {report_file_path}")
+"""
+
+# Lưu file
+report_path = "/mnt/data/report_merged.py"
+Path(report_path).write_text(new_report_py)
+report_path
