@@ -3,10 +3,10 @@ from email.message import EmailMessage
 import time
 import csv
 
-SMTP_SERVER = "smtp.zoho.com"
+SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 465
-EMAIL_SENDER = "contact@infoasia.com.vn"
-EMAIL_PASSWORD = "56nq cmDF NKCQ"
+EMAIL_SENDER = "infoasia.erp.enhance@gmmail.com"
+EMAIL_PASSWORD = "enln fvpp qokp zchl"
 
 # Danh sách người nhận
 email_list = []
