@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, send_file
 from datetime import datetime
+from time import time
 import os
 import requests
 import pytz
@@ -10,6 +11,8 @@ LOG_DIR = "tracking_logs"
 LOG_FILE = os.path.join(LOG_DIR, "tracking.log")
 PIXEL_FILE = os.path.join(LOG_DIR, "pixel.gif")
 RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
+tracking_url = f"https://tracking-email-x9x4.onrender.com/open?email={{email}}&ts={int(time())}"
+
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
