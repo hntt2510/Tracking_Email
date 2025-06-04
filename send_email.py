@@ -47,6 +47,6 @@ with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as smtp:
             print(f"✅ Đã gửi tới: {receiver['Email']} ({receiver['Full Name']})")
         except Exception as e:
             print(f"❌ Lỗi gửi tới: {receiver['Email']} - {e}")
-        time.sleep(5)
+        time.sleep(60)
 
 print("🎉 Gửi xong toàn bộ email HTML!")

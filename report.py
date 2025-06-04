@@ -15,7 +15,9 @@ sent_emails = []
 with open(email_list_path, newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
-        sent_emails.append(row["Email"].strip().lower())
+        email = row["Email"].strip().lower()
+        if email:
+            sent_emails.append(email)
 
 # === Regex khớp log theo chuẩn server mới ===
 log_pattern = re.compile(
@@ -23,10 +25,10 @@ log_pattern = re.compile(
     r"(?: \| INFO: (link1|link2) -> (.*))?$"
 )
 
-# === Khởi tạo thống kê ban đầu ===
+# === Khởi tạo thống kê mặc định ===
 stats = {
     email: {
-        "status": False,
+        "status": True,          # ✅ Mặc định TRUE nếu nằm trong danh sách gửi
         "open": False,
         "click1": False,
         "click2": False
@@ -34,7 +36,7 @@ stats = {
     for email in sent_emails
 }
 
-# === Đọc và phân tích file log ===
+# === Đọc và phân tích log nếu có ===
 if os.path.exists(log_file_path):
     with open(log_file_path, encoding="utf-8") as f:
         for line in f:
@@ -46,9 +48,7 @@ if os.path.exists(log_file_path):
             email = raw_email.strip().lower()
 
             if email not in stats:
-                continue
-
-            stats[email]["status"] = True
+                continue  # Bỏ qua email không nằm trong danh sách gửi
 
             if action == "OPEN":
                 stats[email]["open"] = True
@@ -58,7 +58,7 @@ if os.path.exists(log_file_path):
                 elif link_name == "link2":
                     stats[email]["click2"] = True
 
-# === Ghi báo cáo CSV ===
+# === Ghi file báo cáo CSV ===
 os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
 
 with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
@@ -67,16 +67,16 @@ with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
     writer.writeheader()
 
     for i, email in enumerate(sent_emails, 1):
-        e = email.lower()
+        data = stats[email]
         writer.writerow({
             "STT": i,
             "Email": email,
-            "Status": str(stats[e]["status"]),
-            "IsOpen": str(stats[e]["open"]),
+            "Status": str(data["status"]),
+            "IsOpen": str(data["open"]),
             "Link1": link1,
-            "IsClick1": str(stats[e]["click1"]),
+            "IsClick1": str(data["click1"]),
             "Link2": link2,
-            "IsClick2": str(stats[e]["click2"]),
+            "IsClick2": str(data["click2"]),
         })
 
 print(f"✅ Báo cáo đã được tạo tại: {report_file_path}")

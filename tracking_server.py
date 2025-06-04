@@ -53,7 +53,9 @@ def log_event(event_type, email, extra=""):
 @app.route("/open")
 def track_open():
     email = request.args.get("email", "unknown")
-    log_event("open", email)
+    ip = request.remote_addr
+    ua = request.headers.get("User-Agent", "")
+    log_event("open", email, f"ip={ip} | ua={ua}")
 
     if not os.path.exists(PIXEL_FILE):
         with open(PIXEL_FILE, "wb") as f:
