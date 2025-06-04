@@ -3,10 +3,10 @@ from email.message import EmailMessage
 import time
 import csv
 
-SMTP_SERVER = "smtp.gmail.com"
+SMTP_SERVER = "smtp.zoho.com"
 SMTP_PORT = 465
-EMAIL_SENDER = "infoasia.erp.enhance@gmail.com"
-EMAIL_PASSWORD = "enln fvpp qokp zchl"
+EMAIL_SENDER = "erp@infoasia.com.vn"
+EMAIL_PASSWORD = "vrFTf82cehmW"
 
 # Danh sách người nhận
 email_list = []
@@ -47,6 +47,6 @@ with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as smtp:
             print(f"✅ Đã gửi tới: {receiver['Email']} ({receiver['Full Name']})")
         except Exception as e:
             print(f"❌ Lỗi gửi tới: {receiver['Email']} - {e}")
-        time.sleep(60)
+        time.sleep(30)
 
 print("🎉 Gửi xong toàn bộ email HTML!")
