@@ -101,7 +101,8 @@ with open(report_file_path, "w", newline="", encoding="utf-8") as csvfile:
 print(f"✅ Báo cáo đã được cập nhật và giữ nguyên dữ liệu cũ tại: {report_file_path}")
 """
 
-# Lưu file
-report_path = "/mnt/data/report_merged.py"
-Path(report_path).write_text(new_report_py)
-report_path
+# --- PHẦN ĐÃ ĐƯỢC SỬA Ở ĐÂY ---
+# Thay vì ghi ra "/mnt/data/...", ta sẽ ghi file ngay trong thư mục đang chạy
+report_path = Path(__file__).parent / "report_merged.py"
+Path(report_path).write_text(new_report_py, encoding="utf-8")
+print(f"Đã tạo file mới: {report_path}")
