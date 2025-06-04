@@ -5,7 +5,7 @@ import csv
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 465
-EMAIL_SENDER = "infoasia.erp.enhance@gmmail.com"
+EMAIL_SENDER = "infoasia.erp.enhance@gmail.com"
 EMAIL_PASSWORD = "enln fvpp qokp zchl"
 
 # Danh sách người nhận
