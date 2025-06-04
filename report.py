@@ -26,7 +26,7 @@ log_pattern = re.compile(
 # === Khởi tạo thống kê ban đầu ===
 stats = {
     email: {
-        "status": True,  # Mặc định tất cả email đã gửi thành công
+        "status": True,
         "open": False,
         "click1": False,
         "click2": False
