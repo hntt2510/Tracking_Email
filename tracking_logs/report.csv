@@ -1,8 +1,9 @@
 STT,Email,Status,IsOpen,Link1,IsClick1,Link2,IsClick2
-1,contact@infoasia.com.vn,TRUE,FALSE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
-2,ducthienkhtn@gmail.com,TRUE,FALSE,https://infoasia.com.vn/,FALSE,https://zalo.me/0933823946,FALSE
+1,contact@infoasia.com.vn,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
+2,ducthienkhtn@gmail.com,TRUE,TRUE,https://infoasia.com.vn/,FALSE,https://zalo.me/0933823946,FALSE
 3,duykhang0973662407@gmail.com,TRUE,FALSE,https://infoasia.com.vn/,FALSE,https://zalo.me/0933823946,FALSE
 4,khagdy2004nam@gmail.com,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
 5,tam.mapp04@gmail.com,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
 6,thtampeo2510@gmail.com,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
 7,hntt2510@gmail.com,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
+8,tamhntse180041@fpt.edu.vn,TRUE,TRUE,https://infoasia.com.vn/,TRUE,https://zalo.me/0933823946,TRUE
