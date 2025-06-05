@@ -13,17 +13,30 @@ RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Xóa log cũ nếu đang chạy local
+# Gộp log từ Render nếu chạy local
 if os.getenv("RENDER") is None:
-    for file in [LOG_FILE, PIXEL_FILE]:
-        if os.path.exists(file):
-            os.remove(file)
     try:
         r = requests.get(RENDER_LOG_URL)
         if r.status_code == 200:
-            with open(LOG_FILE, "wb") as f:
-                f.write(r.content)
-            print("✅ Tải log từ Render thành công.")
+            downloaded_log = r.content.decode("utf-8")
+
+            # Gộp log vào cuối nếu chưa có nội dung trùng lặp
+            if not os.path.exists(LOG_FILE):
+                with open(LOG_FILE, "w", encoding="utf-8") as f:
+                    f.write(downloaded_log)
+                print("✅ Tạo tracking.log từ Render.")
+            else:
+                with open(LOG_FILE, "r", encoding="utf-8") as f:
+                    existing_log = f.read()
+
+                # Chỉ gộp nếu log tải về có dòng mới
+                new_lines = [line for line in downloaded_log.splitlines() if line and line not in existing_log]
+                if new_lines:
+                    with open(LOG_FILE, "a", encoding="utf-8") as f:
+                        f.write("\n".join(new_lines) + "\n")
+                    print(f"✅ Đã gộp thêm {len(new_lines)} dòng từ Render vào tracking.log.")
+                else:
+                    print("ℹ️ Log tải về không có dòng mới để gộp.")
         else:
             print("⚠️ Không thể tải log từ Render.")
     except Exception as e:
@@ -92,3 +105,7 @@ def download_log():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+if os.getenv("RENDER") is None and os.path.exists(LOG_FILE):
+    backup_file = LOG_FILE.replace(".log", "_backup.log")
+    os.rename(LOG_FILE, backup_file)
+    print(f"📦 Đã backup log cũ sang: {backup_file}")
