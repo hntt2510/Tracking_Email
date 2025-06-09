@@ -9,7 +9,7 @@ app = Flask(__name__)
 LOG_DIR = "tracking_logs"
 LOG_FILE = os.path.join(LOG_DIR, "tracking.log")
 PIXEL_FILE = os.path.join(LOG_DIR, "pixel.gif")
-RENDER_LOG_URL = "https://tracking-email-x9x4.onrender.com/download_log"
+RENDER_LOG_URL = "http://192.168.1.38:5000/download_log"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
