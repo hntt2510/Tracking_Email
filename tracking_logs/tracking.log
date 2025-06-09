@@ -1,32 +1,54 @@
-[2025-06-05 13:55:31] EVENT: OPEN | EMAIL: amro.assamak@wayu.co
-[2025-06-05 13:55:53] EVENT: CLICK | EMAIL: amro.assamak@wayu.co | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 13:55:53] EVENT: CLICK | EMAIL: amro.assamak@wayu.co | INFO: link2 -> https://zalo.me/0933823946
-[2025-06-05 13:55:53] EVENT: OPEN | EMAIL: amro.assamak@wayu.co
-[2025-06-05 13:59:09] EVENT: OPEN | EMAIL: baclx2@fsoft.com.vn
-[2025-06-05 13:59:48] EVENT: CLICK | EMAIL: baclx2@fsoft.com.vn | INFO: link2 -> https://zalo.me/0933823946
-[2025-06-05 13:59:48] EVENT: OPEN | EMAIL: baclx2@fsoft.com.vn
-[2025-06-05 13:59:48] EVENT: CLICK | EMAIL: baclx2@fsoft.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 14:17:30] EVENT: OPEN | EMAIL: johan.bae@difisoft.com
-[2025-06-05 15:02:50] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
-[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:51] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:54] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:57] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:59] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:15:14] EVENT: OPEN | EMAIL: tariq@scientificsound.asia
-[2025-06-05 15:33:09] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
-[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:51] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:54] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:57] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:02:59] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
-[2025-06-05 15:15:14] EVENT: OPEN | EMAIL: tariq@scientificsound.asia
-[2025-06-05 15:33:09] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
-[2025-06-05 16:35:56] EVENT: OPEN | EMAIL: tam.mapp04@gmail.com
-[2025-06-05 16:35:56] EVENT: OPEN | EMAIL: ducthienkhtn@gmail.com
-[2025-06-05 16:53:50] EVENT: CLICK | EMAIL: bang.nguyen@gcalls.co | INFO: link2 -> https://zalo.me/0933823946
-[2025-06-05 16:53:50] EVENT: OPEN | EMAIL: bang.nguyen@gcalls.co
-[2025-06-05 16:53:51] EVENT: CLICK | EMAIL: bang.nguyen@gcalls.co | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 13:55:31] EVENT: OPEN | EMAIL: amro.assamak@wayu.co
+[2025-06-05 13:55:53] EVENT: CLICK | EMAIL: amro.assamak@wayu.co | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 13:55:53] EVENT: CLICK | EMAIL: amro.assamak@wayu.co | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 13:55:53] EVENT: OPEN | EMAIL: amro.assamak@wayu.co
+[2025-06-05 13:59:09] EVENT: OPEN | EMAIL: baclx2@fsoft.com.vn
+[2025-06-05 13:59:48] EVENT: CLICK | EMAIL: baclx2@fsoft.com.vn | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 13:59:48] EVENT: OPEN | EMAIL: baclx2@fsoft.com.vn
+[2025-06-05 13:59:48] EVENT: CLICK | EMAIL: baclx2@fsoft.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 14:17:30] EVENT: OPEN | EMAIL: johan.bae@difisoft.com
+[2025-06-05 15:02:50] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
+[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:51] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:54] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:57] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:59] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:15:14] EVENT: OPEN | EMAIL: tariq@scientificsound.asia
+[2025-06-05 15:33:09] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
+[2025-06-05 15:02:50] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:51] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:54] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:57] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:02:59] EVENT: CLICK | EMAIL: bao.nguyen@victory.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 15:15:14] EVENT: OPEN | EMAIL: tariq@scientificsound.asia
+[2025-06-05 15:33:09] EVENT: OPEN | EMAIL: bao.nguyen@victory.com.vn
+[2025-06-05 16:35:56] EVENT: OPEN | EMAIL: tam.mapp04@gmail.com
+[2025-06-05 16:35:56] EVENT: OPEN | EMAIL: ducthienkhtn@gmail.com
+[2025-06-05 16:53:50] EVENT: CLICK | EMAIL: bang.nguyen@gcalls.co | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 16:53:50] EVENT: OPEN | EMAIL: bang.nguyen@gcalls.co
+[2025-06-05 16:53:51] EVENT: CLICK | EMAIL: bang.nguyen@gcalls.co | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 17:05:17] EVENT: OPEN | EMAIL: an.nguyen@hotdeal.vn
+[2025-06-05 17:05:32] EVENT: OPEN | EMAIL: jacob@squarehome.com
+[2025-06-05 17:05:54] EVENT: OPEN | EMAIL: bech@votivasoft.com
+[2025-06-05 17:06:37] EVENT: OPEN | EMAIL: alexander@atelierattn.com
+[2025-06-05 17:06:53] EVENT: CLICK | EMAIL: bech@votivasoft.com | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 17:06:54] EVENT: OPEN | EMAIL: bech@votivasoft.com
+[2025-06-05 17:06:54] EVENT: CLICK | EMAIL: bech@votivasoft.com | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 17:07:34] EVENT: OPEN | EMAIL: baumann@macengasia.com
+[2025-06-05 17:08:10] EVENT: OPEN | EMAIL: danielbevan@unitededge.net
+[2025-06-05 17:09:10] EVENT: OPEN | EMAIL: alexander@atelierattn.com
+[2025-06-05 17:09:19] EVENT: OPEN | EMAIL: bichnn@fsoft.com.vn
+[2025-06-05 17:09:43] EVENT: OPEN | EMAIL: bichnn@fsoft.com.vn
+[2025-06-05 17:09:43] EVENT: CLICK | EMAIL: bichnn@fsoft.com.vn | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 17:09:43] EVENT: CLICK | EMAIL: bichnn@fsoft.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 17:12:32] EVENT: OPEN | EMAIL: binhtt1@fsoft.com.vn
+[2025-06-05 17:12:57] EVENT: CLICK | EMAIL: binhtt1@fsoft.com.vn | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-05 17:12:58] EVENT: CLICK | EMAIL: binhtt1@fsoft.com.vn | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-05 17:12:58] EVENT: OPEN | EMAIL: binhtt1@fsoft.com.vn
+[2025-06-05 17:12:59] EVENT: OPEN | EMAIL: eric@emddi.com
+[2025-06-05 17:13:29] EVENT: OPEN | EMAIL: kurtbinh@gosmartlog.com
+[2025-06-05 17:14:09] EVENT: OPEN | EMAIL: jack@mangotiger.com
+[2025-06-05 17:14:10] EVENT: OPEN | EMAIL: binh@daitin.com.vn
