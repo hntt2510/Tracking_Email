@@ -52,3 +52,7 @@
 [2025-06-05 17:13:29] EVENT: OPEN | EMAIL: kurtbinh@gosmartlog.com
 [2025-06-05 17:14:09] EVENT: OPEN | EMAIL: jack@mangotiger.com
 [2025-06-05 17:14:10] EVENT: OPEN | EMAIL: binh@daitin.com.vn
+[2025-06-09 08:51:47] EVENT: OPEN | EMAIL: tam.mapp04@gmail.com
+[2025-06-09 08:51:52] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-09 08:51:53] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-09 08:51:55] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link1 -> https://infoasia.com.vn/
