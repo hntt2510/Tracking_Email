@@ -1,6 +1,7 @@
 import os
 import csv
 import re
+from datetime import datetime
 
 # === Cấu hình ===
 log_file_path    = "tracking_logs/tracking.log"
@@ -25,7 +26,13 @@ with open(email_list_path, newline="", encoding="utf-8") as f:
 
 # === Đọc report cũ nếu có ===
 existing_stats = {}
+# === Backup report cũ nếu tồn tại ===
 if os.path.exists(report_file_path):
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_path = report_file_path.replace(".csv", f"_backup_{ts}.csv")
+    os.rename(report_file_path, backup_path)
+    print(f"📦 Đã backup report cũ sang: {backup_path}")
+
     with open(report_file_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         # Lưu vào existing_stats: key=email, value={…}

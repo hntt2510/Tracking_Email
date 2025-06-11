@@ -1,0 +1,14 @@
+ * Serving Flask app 'tracking_server'
+ * Debug mode: off
+ * Serving Flask app 'tracking_server'
+ * Debug mode: off
+[2025-06-11 11:13:29] EVENT: OPEN | EMAIL: 123
+[2025-06-11 11:14:16] EVENT: CLICK | EMAIL: 123 | INFO: link2 -> "https://zalo.me"
+[2025-06-11 11:14:21] EVENT: CLICK | EMAIL: 123 | INFO: link2 -> https://zalo.me
+[2025-06-11 11:32:55] EVENT: OPEN | EMAIL: 123123
+[2025-06-11 11:34:08] EVENT: OPEN | EMAIL: tam.mapp04@gmail.com
+[2025-06-11 11:34:12] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link1 -> https://infoasia.com.vn/
+[2025-06-11 11:34:13] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link2 -> https://zalo.me/0933823946
+[2025-06-11 11:34:14] EVENT: CLICK | EMAIL: tam.mapp04@gmail.com | INFO: link1 -> https://infoasia.com.vn/
+ * Serving Flask app 'tracking_server'
+ * Debug mode: off
