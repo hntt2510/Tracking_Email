@@ -95,3 +95,4 @@ Press CTRL+C to quit
 65.49.1.158 - - [11/Jun/2025 13:00:48] "GET / HTTP/1.1" 404 -
 65.49.1.159 - - [11/Jun/2025 13:01:13] "GET /favicon.ico HTTP/1.1" 404 -
 160.191.86.229 - - [11/Jun/2025 13:38:44] "CONNECT www.google.com:443 HTTP/1.1" 404 -
+207.167.66.214 - - [11/Jun/2025 14:03:08] "CONNECT www.google.com:443 HTTP/1.1" 404 -
