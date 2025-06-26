@@ -6,7 +6,7 @@ import smtplib
 from flask import Flask, jsonify
 from email.message import EmailMessage
 from dotenv import load_dotenv
-from mssql_helper import MsSqlHelper
+from utils.mssql_helper import MsSqlHelper
 
 # Load biến môi trường từ file .env
 load_dotenv()
