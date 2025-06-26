@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiện ích bổ sung Excel cho SAP ERP</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+        }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 30px;
+            background: linear-gradient(135deg, #00796B 0%, #26A69A 100%);
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .content {
+            padding: 40px;
+        }
+        .feature {
+            margin: 30px 0;
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            border-left: 5px solid #26A69A;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .feature h3 {
+            color: #00796B;
+            margin-top: 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .feature p {
+            margin: 15px 0 0;
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0;
+            gap: 25px;
+        }
+        .stat-item {
+            flex: 1;
+            padding: 25px;
+            background: #ffffff;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .stat-item h3 {
+            color: #00796B;
+            font-size: 36px;
+            margin: 0 0 15px;
+            font-weight: 700;
+        }
+        .stat-item p {
+            color: #333333;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .features-list {
+            background-color: #e0f2f1;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 40px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .features-list ul {
+            margin: 0;
+            padding-left: 25px;
+        }
+        .features-list li {
+            margin: 15px 0;
+            color: #333333;
+            font-size: 16px;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 25px;
+        }
+        .features-list li::before {
+            content: '▶';
+            color: #00796B;
+            font-size: 1em;
+            position: absolute;
+            left: 0;
+            top: 4px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 18px 36px;
+            background: linear-gradient(135deg, #00796B 0%, #26A69A 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px auto;
+            display: block;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(38, 166, 154, 0.3);
+            letter-spacing: 0.5px;
+        }
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(38, 166, 154, 0.4);
+        }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            background-color: #ffffff;
+            color: #333333;
+            font-size: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #00796B;
+            font-size: 28px;
+            margin: 45px 0 25px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-align: center;
+            text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1);
+        }
+        .cta-section {
+            background: #e0f2f1;
+            padding: 35px;
+            border-radius: 12px;
+            margin: 40px 0;
+            text-align: center;
+        }
+        .cta-section h2 {
+            color: #00796B;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+        .cta-section p {
+            color: #34495e;
+            font-size: 16px;
+            line-height: 1.7;
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+            border-left: 5px solid #26A69A;
+        }
+        .highlight p {
+            margin: 12px 0;
+            color: #34495e;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .highlight a {
+            color: #00796B;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .highlight a:hover {
+            text-decoration: underline;
+        }
+        .image-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .content-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .content-image:hover {
+            transform: scale(1.02);
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                max-width: 100%;
+            }
+            .header h1 {
+                font-size: 26px;
+            }
+            .stats {
+                flex-direction: column;
+            }
+            .stat-item {
+                margin: 15px 0;
+            }
+            .content {
+                padding: 25px;
+            }
+            .cta-button {
+                padding: 15px 30px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tracking pixel - đặt ở đầu body và thêm các thuộc tính để đảm bảo tải -->
+    <div class="container">
+        <div class="header">
+            <h1>Tăng hiệu quả báo cáo với tiện ích bổ sung Excel cho SAP ERP và Các ERP Khác</h1>
+        </div>
+
+        <div class="content">
+            <h2>Tạo báo cáo linh hoạt bằng cách kết nối Excel với ERP</h2>
+            
+            <div class="feature">
+                <h3>Quản lý dữ liệu dễ dàng</h3>
+                <p>Giúp đội ngũ của bạn dễ dàng khám phá và phân tích dữ liệu SAP ngay trong Excel, biến các tập dữ liệu phức tạp thành thông tin rõ ràng và dễ hành động chỉ với vài cú nhấp chuột.</p>
+            </div>
+
+            <div class="feature">
+                <h3>Giải pháp báo cáo tùy chỉnh</h3>
+                <p>Thiết kế và cá nhân hóa các bảng điều khiển tương tác hiển thị trực tiếp các chỉ số KPI, thúc đẩy các quyết định thông minh dựa trên dữ liệu trong lĩnh vực bán lẻ và sản xuất.</p>
+            </div>
+
+            <div class="feature">
+                <h3>Độ chính xác tài chính theo thời gian thực</h3>
+                <p>Tạo các báo cáo tài chính luôn cập nhật, đảm bảo người ra quyết định tiếp cận dữ liệu mới nhất một cách nhanh chóng để đưa ra chiến lược kịp thời và chính xác.</p>
+            </div>
+
+            <img src="https://infoasia.com.vn/wp-content/uploads/2025/06/email_exceladdin_01.png" alt="Excel Add-in Interface">
+
+            <h2>Rút ngắn thời gian lập báo cáo ERP và tăng gấp đôi năng suất nhân viên</h2>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <h3>30%</h3>
+                    <p>Rút gọn quy trình lập báo cáo</p>
+                </div>
+                <div class="stat-item">
+                    <h3>100%</h3>
+                    <p>Khả năng xử lý khối lượng công việc của nhân viên</p>
+                </div>
+                <div class="stat-item">
+                    <h3>1</h3>
+                    <p>Nguồn dữ liệu đáng tin cậy duy nhất</p>
+                </div>
+            </div>
+
+            <img src="https://infoasia.com.vn/wp-content/uploads/2025/06/email_exceladdin_02.png" alt="Performance Metrics">
+
+            <h2>Các chức năng nổi bật khác</h2>
+            <div class="features-list">
+                <ul>
+                    <li>Ký duyệt chứng từ điện tử bằng Excel eSignature Addin</li>
+                    <li>Kết nối trực tiếp với các ERP phổ biến: SAP/ Oracle/ Microsoft...</li>
+                    <li>Bộ thư viện tự xây dựng tương thích với báo cáo tài chính chuẩn mực Việt Nam</li>
+                    <li>Chi phí rất phù hợp với SME tại VN</li>
+                </ul>
+            </div>
+
+            <div class="cta-section">
+                <h2>👉 Bạn có muốn được dùng thử hoặc tư vấn miễn phí không?</h2>
+                <p>Hãy cùng khám phá cách bạn có thể chuyển đổi trải nghiệm SAP ERP của mình!</p>
+                <p>Chúng tôi (INFOASIA) sẽ giúp bạn giải quyết các vấn đề liên quan đến số hóa bằng các giải pháp đã phát triển và triển khai thành công tại VN, với chi phí rất phù hợp.</p>
+                <a href="http://202.43.110.175:5000/click?target=https://infoasia.com.vn/&email=[ EMAIL ]" target="_blank" class="cta-button">Xem chi tiết DEMO và nhận thử phiên bản sử dụng</a>
+            </div>
+
+            <div class="highlight">
+                <p><strong>Xin vui lòng trả lời email này hoặc liên hệ với chúng tôi tại <a href="http://202.43.110.175:5000/click?target=https://infoasia.com.vn/&email=[ EMAIL ]">INFOASIA</a>.</strong></p>
+                <p>Chúng tôi mong muốn được hỗ trợ cho sự thành công của bạn.</p>
+                <p>Chúc mừng thành công và mong nhận được phản hồi.</p>
+            </div>
+
+            <div class="image-container">
+                <a href="http://202.43.110.175:5000/click?target=https://zalo.me/0933823946&email=[ EMAIL ]" target="_blank">
+                    <img src="https://infoasia.com.vn/wp-content/uploads/2025/06/4.jpg" alt="InfoAsia Contact Information" class="content-image">
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="font-size: 16px; font-weight: 600; margin-bottom: 5px;"><strong>Trân trọng,</strong></p>
+            <p style="font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #00796B;"><strong>INFOASIA Team</strong></p>
+            <p style="font-size: 14px; color: #555555; margin-bottom: 20px;">Đối tác SAP hàng đầu tại Việt Nam</p>
+        </div>
+    </div>
+    <img src="http://202.43.110.175:5000/open?email=[ EMAIL ]&rand={rand}" width="1" height="1">
+</body>
+</html>
