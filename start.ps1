@@ -1,1 +1,1 @@
-python run.py
+python -B run.py --debug
