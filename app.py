@@ -18,6 +18,10 @@ app = Flask(__name__, static_folder='statics/')
 def index():
     return "Server is running! Routes: " + ", ".join(sorted(r.rule for r in app.url_map.iter_rules())), 200
 
+@app.route("/ping", methods=["GET"])
+def pong():
+    return "pong", 200
+
 @app.route('/run', methods=['GET'])
 def run_send():
     campaign_config_id_str = request.args.get("id", None)
