@@ -27,6 +27,16 @@ class OaDataService:
     dashboardId = self.sql_helper.execute_scalar(query, [setting_id])
     return dashboardId
   
+  def get_time_for_schedule_by_id(self, setting_id: int):
+    query = f"""
+      select 
+        datepart(hour, time_1) as [Hour],
+        datepart(minute, time_1) as [Minute]
+      from AppCreator_be2bea7b where RECORD_NUMBER = ?
+    """
+    time_schedule = self.sql_helper.execute_query(query, [setting_id])
+    return time_schedule[0] if time_schedule else None
+  
   def get_campaign_setting_by_id(self, setting_id: int):
     query = f"""
       select
