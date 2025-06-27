@@ -20,7 +20,7 @@ def index():
 
 @app.route("/ping", methods=["GET"])
 def pong():
-    return "pong", 200
+    return "pong-123", 200
 
 @app.route('/run', methods=['GET'])
 def run_send():
