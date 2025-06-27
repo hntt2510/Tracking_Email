@@ -1,7 +1,9 @@
 import threading
 import os
+from datetime import datetime
 from flask import Flask, request, jsonify, redirect
 from dotenv import load_dotenv
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from services.oadata_service import OaDataService
 from send_email import send_all_emails
@@ -12,6 +14,8 @@ load_dotenv()
 PORT = int(os.getenv("DEFAULT_PORT", 5000))
 
 oadata_service = OaDataService()
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 app = Flask(__name__, static_folder='statics/')
 
@@ -23,21 +27,63 @@ def index():
 def pong():
     return "pong-123", 200
 
+@app.route("/test_schedule/<int:id>", methods=["GET"])
+def test_schedule(id: int):
+    print(id)
+    job = scheduler.get_job(str(id))
+    if job is not None:
+        return "job already running", 200
+    
+    if id == 1:
+        scheduler.add_job(test, "date", run_date=datetime.now(), args=["one_time"])
+        return "date job", 200
+    elif id == 2:
+        scheduler.add_job(test, "interval", seconds=5, args=["interval"], id=str(id))
+        return "interval job", 200
+    elif id == 3:
+        scheduler.add_job(test, "cron", hour=14, minute=10, args=["daily"], id=str(id))
+        return "daily job", 200
+    else:
+        return "no action", 200
+    
+def test(target: str = ""):
+    print(f"test - {target}")
+
 @app.route('/run', methods=['GET'])
 def run_send():
-    campaign_config_id_str = request.args.get("id", None)
-    return_url = request.args.get("return_url", None)
+    setting_id_param = request.args.get("id", None)
 
-    if not campaign_config_id_str:
+    if not setting_id_param:
         return jsonify(success=False, message="Campaign ID not found"), 400
-
     try:
-        campaign_config_id = int(campaign_config_id_str)
+        setting_id = int(setting_id_param)
     except ValueError:
-        return jsonify(success=False, message=f"Campaign ID invalid: {campaign_config_id_str}"), 400
+        return jsonify(success=False, message=f"Campaign ID invalid: {setting_id_param}"), 400
 
-    threading.Thread(target=send_all_emails, args=(campaign_config_id,), daemon=True).start()
-    return jsonify(success=True, message=f"Start send email in background with campaign ID: {campaign_config_id}"), 202
+    #threading.Thread(target=send_all_emails, args=(campaign_config_id,), daemon=True).start()
+    scheduler.add_job(send_all_emails, "date", run_date=datetime.now(), args=[setting_id])
+    return jsonify(success=True, message=f"Start send email in background with campaign ID: {setting_id}"), 202
+
+@app.route('/schedule', methods=['GET'])
+def schedule_send():
+    setting_id_param = request.args.get("id", None)
+    if not setting_id_param:
+        return jsonify(success=False, message="Campaign ID not found"), 400
+    try:
+        setting_id = int(setting_id_param)
+    except ValueError:
+        return jsonify(success=False, message=f"Campaign ID invalid: {setting_id_param}"), 400
+    
+    job = scheduler.get_job(str(setting_id))
+    if job is None:
+        time_setting = oadata_service.get_time_for_schedule_by_id(setting_id)
+        hour = int(time_setting["Hour"])
+        minute = int(time_setting["Minute"])
+        scheduler.add_job(send_all_emails, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
+        return jsonify(success=True, message=f"Start daily send email in background with campaign ID: {setting_id}"), 202
+    else:
+        scheduler.remove_job(str(setting_id))
+        return jsonify(success=True, message=f"Stop daily send email in background with campaign ID: {setting_id}"), 202
 
 @app.route("/open", methods=["GET"])
 def track_open():
