@@ -31,7 +31,8 @@ class OaDataService:
     query = f"""
       select 
         datepart(hour, time_1) as [Hour],
-        datepart(minute, time_1) as [Minute]
+        datepart(minute, time_1) as [Minute],
+        radio_button_1 as [ScheduleType]
       from AppCreator_be2bea7b where RECORD_NUMBER = ?
     """
     time_schedule = self.sql_helper.execute_query(query, [setting_id])
