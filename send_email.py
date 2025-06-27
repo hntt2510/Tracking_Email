@@ -109,5 +109,6 @@ def send_all_emails(campaign_config_id):
                 time.sleep(30)
 
         print(f'Send all mail complete for campaign ID: {campaign_name}')
+        oadata_service.update_campaign_setting_status(campaign_config_id, 1)
     except Exception as e:
         print(f'Internal exception when send mail for campaign ID: {campaign_config_id} - {e}')

@@ -126,13 +126,10 @@ class OaDataService:
       return
     
     try:
-      where_clause = "text_3 = ?"  # text_3 is Email
-      where_clause += "and RECORD_NUMBER = (select top 1 RECORD_NUMBER from {TABLE_CAMPAIGN_DASHBOARD} where Campaign_ID = ?)"
-
       self.sql_helper.execute_non_query(f"""
-          UPDATE {TABLE_DASHBOARD_STATUS}
-          SET {update_column} = ?
-          WHERE {where_clause}
+        UPDATE {TABLE_DASHBOARD_STATUS}
+        SET {update_column} = ?
+        where text_3 = ? and RECORD_NUMBER = (select top 1 RECORD_NUMBER from {TABLE_CAMPAIGN_DASHBOARD} where Campaign_ID = ?)
       """, ["TRUE" if status else "FALSE", email, campaign_id])
       print(f"Update success {update_column} for email {email} (campaign: {campaign_name}) thành {"TRUE" if status else "FALSE"}")
     except Exception as e:
