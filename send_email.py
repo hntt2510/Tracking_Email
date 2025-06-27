@@ -4,6 +4,7 @@ import random
 
 from email.message import EmailMessage
 from services.oadata_service import OaDataService
+from utils.logger import Logger
 
 oadata_service = OaDataService()
 
@@ -11,10 +12,10 @@ def open_smtp_connection(smtp_server, smtp_port, email_sender, email_password):
     try:
         smtp = smtplib.SMTP_SSL(smtp_server, int(smtp_port), timeout=10)
         smtp.login(email_sender, email_password)
-        print('Connected with SMTP_SSL')
+        Logger.info('Connected with SMTP_SSL')
         return smtp
     except Exception as e:
-        print(f'Faild to connect with SMTP_SSL: {e}; try with STARTTLS...')
+        Logger.error(f'Faild to connect with SMTP_SSL: {e}; try with STARTTLS...')
     try:
         if int(smtp_port) == 465:
             smtp_port = 587
@@ -22,17 +23,17 @@ def open_smtp_connection(smtp_server, smtp_port, email_sender, email_password):
         smtp.ehlo()
         smtp.starttls()
         smtp.login(email_sender, email_password)
-        print('Connected with STARTTLS')
+        Logger.info('Connected with STARTTLS')
         return smtp
     except Exception as e:
-        print(f'Faild to connect STARTTLS: {e}')
+        Logger.error(f'Faild to connect STARTTLS: {e}')
         raise
 
 def create_personalized_email(row, html_template, email_subject, email_sender, campaign_name, campaign_id: int):
     rand = str(random.randint(100000, 999999))
     open_track_url = f"http://202.43.110.175:5000/open?email={row['Email']}&campaign={campaign_name}&rand={rand}&campaign_id={campaign_id}"
     click_link1_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://infoasia.com.vn&campaign_id={campaign_id}"
-    click_link2_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://zalo.me&campaign_id={campaign_id}"
+    click_link2_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://zalo.me/0933823946&campaign_id={campaign_id}"
 
     html = (
         html_template
@@ -55,12 +56,12 @@ def create_personalized_email(row, html_template, email_subject, email_sender, c
     return msg
 
 def send_all_emails(campaign_config_id):
-    print(f'Start sending email for campaign ID: {campaign_config_id}')
+    Logger.info(f'Start sending email for campaign ID: {campaign_config_id}')
     try:
         # get setting
         campaign_config_data = oadata_service.get_campaign_setting_by_id(campaign_config_id)
         if not campaign_config_data:
-            print(f"Not found campaign setting id: {campaign_config_id}.")
+            Logger.warning(f"Not found campaign setting id: {campaign_config_id}.")
             return
         
         campaign_name = campaign_config_data['CampaignName']
@@ -73,12 +74,12 @@ def send_all_emails(campaign_config_id):
 
         receiver_list = oadata_service.get_receiver_list(receiver_list_id)
         if not receiver_list:
-            print(f'Not found receiver list with id: {receiver_list_id}.')
+            Logger.warning(f'Not found receiver list with id: {receiver_list_id}.')
             return
 
         html_template_content, email_subject = oadata_service.get_email_template_html(email_template_id)
         if not html_template_content:
-            print(f'Not found email template with id: {email_template_id}.')
+            Logger.warning(f'Not found email template with id: {email_template_id}.')
             return
 
         oadata_service.update_campaign_setting_status(campaign_config_id, 2) # status = 2 is running
@@ -89,7 +90,7 @@ def send_all_emails(campaign_config_id):
         email_to_send = oadata_service.get_list_email_for_send(campaign_config_id)
 
         if not email_to_send:
-            print(f'Not found email need send for campaign ID: {campaign_config_id}')
+            Logger.warning(f'Not found email need send for campaign ID: {campaign_config_id}')
             return
 
         smtp = open_smtp_connection(smtp_server, smtp_port, email_sender, email_password)
@@ -103,12 +104,12 @@ def send_all_emails(campaign_config_id):
                     msg = create_personalized_email({'FullName': full_name, 'Email': recipient, 'Company': company, 'Phone': phone}, html_template_content, email_subject, email_sender, campaign_name, campaign_config_id)
                     smtp.send_message(msg)
                     oadata_service.update_campaign_dashboard_status_send(campaign_config_id, recipient, True)
-                    print(f'Send mail success to {recipient} in campaign: {campaign_name}')
+                    Logger.info(f'Send mail success to {recipient} in campaign: {campaign_name}')
                 except Exception as e:
-                    print(f'Internal exception when send mail to {recipient} in campaign: {campaign_name} - {e}')
+                    Logger.error(f'Internal exception when send mail to {recipient} in campaign: {campaign_name} - {e}')
                 time.sleep(30)
 
-        print(f'Send all mail complete for campaign ID: {campaign_name}')
+        Logger.info(f'Send all mail complete for campaign ID: {campaign_name}')
         oadata_service.update_campaign_setting_status(campaign_config_id, 1)
     except Exception as e:
-        print(f'Internal exception when send mail for campaign ID: {campaign_config_id} - {e}')
+        Logger.error(f'Internal exception when send mail for campaign ID: {campaign_config_id} - {e}')

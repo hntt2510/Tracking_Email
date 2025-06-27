@@ -1,5 +1,7 @@
-from utils.mssql_helper import MsSqlHelper
 import requests
+
+from utils.mssql_helper import MsSqlHelper
+from utils.logger import Logger
 
 SQL_SERVER_IP    = '192.168.42.31'
 SQL_DATABASE     = 'UNIWIN_TRAIN'
@@ -24,6 +26,16 @@ class OaDataService:
     """
     dashboardId = self.sql_helper.execute_scalar(query, [setting_id])
     return dashboardId
+  
+  def get_time_for_schedule_by_id(self, setting_id: int):
+    query = f"""
+      select 
+        datepart(hour, time_1) as [Hour],
+        datepart(minute, time_1) as [Minute]
+      from AppCreator_be2bea7b where RECORD_NUMBER = ?
+    """
+    time_schedule = self.sql_helper.execute_query(query, [setting_id])
+    return time_schedule[0] if time_schedule else None
   
   def get_campaign_setting_by_id(self, setting_id: int):
     query = f"""
@@ -73,10 +85,10 @@ class OaDataService:
         response.raise_for_status()
         return response.text, email_subject
     except requests.exceptions.RequestException as e:
-        print(f"Error when get email template from '{template_url}': {e}")
+        Logger.error(f"Error when get email template from '{template_url}': {e}")
         return None, None
     except Exception as e:
-        print(f"Error when get email template from '{template_url}': {e}")
+        Logger.error(f"Error when get email template from '{template_url}': {e}")
         return None, None
   
   def get_list_email_for_send(self, setting_id: int):
@@ -122,7 +134,7 @@ class OaDataService:
     }
     update_column = mappingAction.get(event_type, None)
     if update_column is None:
-      print("Event type invalid for update")
+      Logger.info("Event type invalid for update")
       return
     
     try:
@@ -131,9 +143,9 @@ class OaDataService:
         SET {update_column} = ?
         where text_3 = ? and RECORD_NUMBER = (select top 1 RECORD_NUMBER from {TABLE_CAMPAIGN_DASHBOARD} where Campaign_ID = ?)
       """, ["TRUE" if status else "FALSE", email, campaign_id])
-      print(f"Update success {update_column} for email {email} (campaign: {campaign_name}) thành {"TRUE" if status else "FALSE"}")
+      Logger.info(f"Update success {update_column} for email {email} (campaign: {campaign_name}) thành {"TRUE" if status else "FALSE"}")
     except Exception as e:
-      print(f"Internal exception when update status for {email} (campaign: {campaign_name}): {e}")
+      Logger.error(f"Internal exception when update status for {email} (campaign: {campaign_name}): {e}")
       
   def log_event(self, event_type: str, email: str, target_url: str = ""):
     try:
@@ -143,4 +155,4 @@ class OaDataService:
         [email, event_type, target_url]
       )
     except Exception as e:
-      print(f"Internal exception when insert log event {event_type} for {email}: {e}")
+      Logger.error(f"Internal exception when insert log event {event_type} for {email}: {e}")
