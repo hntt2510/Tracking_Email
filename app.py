@@ -47,7 +47,7 @@ def track_open():
         return "", 204
     
     oadata_service.log_event("OPEN", email)
-    oadata_service.update_campaign_dashboard_statuses(email, "OPEN", campaign_name, campaign_id)
+    oadata_service.update_campaign_dashboard_statuses(email, "OPEN", campaign_name, campaign_id, True)
     return "", 204
 
 @app.route("/click", methods=["GET"])
@@ -63,8 +63,8 @@ def track_click():
     oadata_service.log_event("CLICK", email, target_url)
     
     if "infoasia.com.vn" in target_url.lower():
-        oadata_service.update_campaign_dashboard_statuses(email, "CLICK_LINK1", campaign_name, campaign_id)
+        oadata_service.update_campaign_dashboard_statuses(email, "CLICK_LINK1", campaign_name, campaign_id, True)
     elif "zalo.me" in target_url.lower():
-        oadata_service.update_campaign_dashboard_statuses(email, "CLICK_LINK2", campaign_name, campaign_id)
+        oadata_service.update_campaign_dashboard_statuses(email, "CLICK_LINK2", campaign_name, campaign_id, True)
     
     return redirect(target_url)
