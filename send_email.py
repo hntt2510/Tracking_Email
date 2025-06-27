@@ -1,104 +1,114 @@
-# ===== FILE: send_email.py =====
-
 import smtplib
-from email.message import EmailMessage
 import time
 import random
-from dotenv import load_dotenv
-import os
-from mssql_helper import MsSqlHelper
 
-# Load environment variables
-load_dotenv()
+from email.message import EmailMessage
+from services.oadata_service import OaDataService
 
-# SQL Config
-SQL_SERVER_IP = os.getenv('SQL_SERVER_IP')
-SQL_DATABASE = os.getenv('SQL_DATABASE')
-SQL_USER = os.getenv('SQL_USER')
-SQL_PASSWORD = os.getenv('SQL_PASSWORD')
+oadata_service = OaDataService()
 
-# SMTP Config
-SMTP_SERVER = os.getenv('SMTP_SERVER')
-SMTP_PORT = int(os.getenv('SMTP_PORT', 465))
-EMAIL_SENDER = os.getenv('EMAIL_SENDER')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+def open_smtp_connection(smtp_server, smtp_port, email_sender, email_password):
+    try:
+        smtp = smtplib.SMTP_SSL(smtp_server, int(smtp_port), timeout=10)
+        smtp.login(email_sender, email_password)
+        print('Connected with SMTP_SSL')
+        return smtp
+    except Exception as e:
+        print(f'Faild to connect with SMTP_SSL: {e}; try with STARTTLS...')
+    try:
+        if int(smtp_port) == 465:
+            smtp_port = 587
+        smtp = smtplib.SMTP(smtp_server, int(smtp_port), timeout=10)
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.login(email_sender, email_password)
+        print('Connected with STARTTLS')
+        return smtp
+    except Exception as e:
+        print(f'Faild to connect STARTTLS: {e}')
+        raise
 
-# Table Names
-EMAIL_LIST_TABLE = os.getenv('EMAIL_LIST_TABLE')
-REPORT_TABLE = os.getenv('REPORT_TABLE')
-
-# SQL Helper
-sql_helper = MsSqlHelper(
-    server=SQL_SERVER_IP,
-    database=SQL_DATABASE,
-    user=SQL_USER,
-    password=SQL_PASSWORD
-)
-
-# Load email list
-email_list = sql_helper.execute_query(f'''
-    SELECT [text_2] AS FullName, [text_3] AS Email, [text_4] AS Company, [text_5] AS Phone
-    FROM {EMAIL_LIST_TABLE}
-''')
-
-# Load email template
-with open("email_template.html", "r", encoding="utf-8") as f:
-    html_content = f.read()
-
-# Sync email list to report
-
-def sync_email_to_report():
-    source_rows = sql_helper.execute_query(f'''
-        SELECT [text_2] AS FullName, [text_3] AS Email FROM {EMAIL_LIST_TABLE}
-    ''')
-    for row in source_rows:
-        email = row['Email']
-        fullname = row['FullName']
-        sql_helper.execute_non_query(f'''
-            IF NOT EXISTS (
-                SELECT 1 FROM {REPORT_TABLE} WHERE [text_3] = ?
-            )
-            INSERT INTO {REPORT_TABLE} ([text_2], [text_3], [text_4], [text_5], [text_6], [text_7])
-            VALUES (?, ?, 'FALSE', 'FALSE', 'FALSE', 'FALSE')
-        ''', [email, fullname, email])
-    print("✅ Đồng bộ email từ EMAIL LIST sang REPORT thành công!")
-
-# Create email
-
-def create_personalized_email(row):
+def create_personalized_email(row, html_template, email_subject, email_sender, campaign_name, campaign_id: int):
     rand = str(random.randint(100000, 999999))
-    personalized_html = html_content\
-        .replace("[ FULLNAME ]", row["FullName"])\
-        .replace("[ COMPANY ]", row["Company"])\
-        .replace("[ PHONE ]", row["Phone"])\
-        .replace("[ EMAIL ]", row["Email"])\
-        .replace("{rand}", rand)
+    open_track_url = f"http://202.43.110.175:5000/open?email={row['Email']}&campaign={campaign_name}&rand={rand}&campaign_id={campaign_id}"
+    click_link1_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://infoasia.com.vn&campaign_id={campaign_id}"
+    click_link2_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://zalo.me&campaign_id={campaign_id}"
+
+    html = (
+        html_template
+        .replace('[ FULLNAME ]', row['FullName'])
+        .replace('[ EMAIL ]', row['Email'])
+        .replace('[ COMPANY ]', row.get('Company', 'N/A'))  # Thêm Company
+        .replace('[ PHONE ]', row.get('Phone', 'N/A'))      # Thêm Phone
+        .replace('{rand}', rand)
+        .replace('[OPEN_TRACK_URL]', open_track_url)
+        .replace('[CLICK_LINK1_URL]', click_link1_url)
+        .replace('[CLICK_LINK2_URL]', click_link2_url)
+    )
 
     msg = EmailMessage()
-    msg["Subject"] = "[INFOASIA] ERP ENHANCE - NÂNG CẤP ERP TOÀN DIỆN"
-    msg["From"] = EMAIL_SENDER
-    msg["To"] = row["Email"]
-    msg.set_content("Email yêu cầu trình duyệt hỗ trợ HTML.")
-    msg.add_alternative(personalized_html, subtype="html")
+    msg['Subject'] = email_subject
+    msg['From'] = email_sender
+    msg['To'] = row['Email']
+    msg.set_content('Vui lòng bật chế độ xem HTML để xem đầy đủ nội dung.')
+    msg.add_alternative(html, subtype='html')
     return msg
 
-# Gửi email
-sync_email_to_report()
+def send_all_emails(campaign_config_id):
+    print(f'Start sending email for campaign ID: {campaign_config_id}')
+    try:
+        # get setting
+        campaign_config_data = oadata_service.get_campaign_setting_by_id(campaign_config_id)
+        if not campaign_config_data:
+            print(f"Not found campaign setting id: {campaign_config_id}.")
+            return
+        
+        campaign_name = campaign_config_data['CampaignName']
+        receiver_list_id = campaign_config_data['ReceiverListID']
+        email_template_id = campaign_config_data['EmailTemplateID']
+        smtp_server    = campaign_config_data['SMTPServer']
+        smtp_port      = campaign_config_data['SMTPPort']
+        email_sender   = campaign_config_data['SMTPEmail']
+        email_password = campaign_config_data['SMTPPass']
 
-with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as smtp:
-    smtp.login(EMAIL_SENDER, EMAIL_PASSWORD)
-    for receiver in email_list:
-        try:
-            msg = create_personalized_email(receiver)
-            smtp.send_message(msg)
-            sql_helper.execute_non_query(f'''
-                UPDATE {REPORT_TABLE}
-                SET [text_4] = 'TRUE'
-                WHERE [text_3] = ?
-            ''', [receiver["Email"]])
-            print(f"✅ Đã gửi tới: {receiver['Email']} ({receiver['FullName']})")
-        except Exception as e:
-            print(f"❌ Lỗi gửi tới: {receiver['Email']} - {e}")
-        time.sleep(30)
+        receiver_list = oadata_service.get_receiver_list(receiver_list_id)
+        if not receiver_list:
+            print(f'Not found receiver list with id: {receiver_list_id}.')
+            return
 
-print("🎉 Gửi xong toàn bộ email HTML!")
+        html_template_content, email_subject = oadata_service.get_email_template_html(email_template_id)
+        if not html_template_content:
+            print(f'Not found email template with id: {email_template_id}.')
+            return
+
+        oadata_service.update_campaign_setting_status(campaign_config_id, 2) # status = 2 is running
+
+        # now we have trigger for that dont need this function
+        #sync_email_to_report(campaign_name, receiver_list)
+        
+        email_to_send = oadata_service.get_list_email_for_send(campaign_config_id)
+
+        if not email_to_send:
+            print(f'Not found email need send for campaign ID: {campaign_config_id}')
+            return
+
+        smtp = open_smtp_connection(smtp_server, smtp_port, email_sender, email_password)
+        with smtp:
+            for row in email_to_send:
+                recipient = row['Email']
+                full_name = row['FullName']
+                company = row['Company']
+                phone = row['Phone']
+                try:
+                    msg = create_personalized_email({'FullName': full_name, 'Email': recipient, 'Company': company, 'Phone': phone}, html_template_content, email_subject, email_sender, campaign_name, campaign_config_id)
+                    smtp.send_message(msg)
+                    oadata_service.update_campaign_dashboard_status_send(campaign_config_id, recipient, True)
+                    print(f'Send mail success to {recipient} in campaign: {campaign_name}')
+                except Exception as e:
+                    print(f'Internal exception when send mail to {recipient} in campaign: {campaign_name} - {e}')
+                time.sleep(30)
+
+        print(f'Send all mail complete for campaign ID: {campaign_name}')
+        oadata_service.update_campaign_setting_status(campaign_config_id, 1)
+    except Exception as e:
+        print(f'Internal exception when send mail for campaign ID: {campaign_config_id} - {e}')
