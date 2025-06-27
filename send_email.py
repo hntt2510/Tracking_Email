@@ -33,7 +33,7 @@ def create_personalized_email(row, html_template, email_subject, email_sender, c
     rand = str(random.randint(100000, 999999))
     open_track_url = f"http://202.43.110.175:5000/open?email={row['Email']}&campaign={campaign_name}&rand={rand}&campaign_id={campaign_id}"
     click_link1_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://infoasia.com.vn&campaign_id={campaign_id}"
-    click_link2_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://zalo.me&campaign_id={campaign_id}"
+    click_link2_url = f"http://202.43.110.175:5000/click?email={row['Email']}&campaign={campaign_name}&target=https://zalo.me/0933823946&campaign_id={campaign_id}"
 
     html = (
         html_template
