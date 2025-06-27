@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from services.oadata_service import OaDataService
 from send_email import send_all_emails
+from utils.logger import Logger
 
 # --- Tải biến môi trường ---
 load_dotenv()
