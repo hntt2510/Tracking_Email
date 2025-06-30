@@ -1,6 +1,6 @@
 import threading
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, redirect
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -79,8 +79,18 @@ def schedule_send():
         time_setting = oadata_service.get_time_for_schedule_by_id(setting_id)
         hour = int(time_setting["Hour"])
         minute = int(time_setting["Minute"])
-        scheduler.add_job(send_all_emails, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
-        return jsonify(success=True, message=f"Start daily send email in background with campaign ID: {setting_id}"), 202
+        schedule_type = int(time_setting["ScheduleType"])
+        if schedule_type == 1:
+            now = datetime.now()
+            schedule_date = datetime(now.year, now.month, now.day, hour=hour, minute=minute)
+            schedule_date = schedule_date if schedule_date > now else schedule_date + timedelta(days=1)
+            scheduler.add_job(send_all_emails, "date", run_date=schedule_date, args=[setting_id])
+            return jsonify(success=True, message=f"Start one time at {schedule_date.strftime("%d/%m/%Y - %H:%M")} send email in background with campaign ID: {setting_id}"), 202
+        elif schedule_type == 2:
+            scheduler.add_job(send_all_emails, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
+            return jsonify(success=True, message=f"Start daily ({hour} : {minute}) send email in background with campaign ID: {setting_id}"), 202
+        else:
+            return jsonify(success=False, message=f"ScheduleType not found for campaign ID: {setting_id}"), 202
     else:
         scheduler.remove_job(str(setting_id))
         return jsonify(success=True, message=f"Stop daily send email in background with campaign ID: {setting_id}"), 202

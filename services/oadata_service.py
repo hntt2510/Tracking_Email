@@ -31,7 +31,8 @@ class OaDataService:
     query = f"""
       select 
         datepart(hour, time_1) as [Hour],
-        datepart(minute, time_1) as [Minute]
+        datepart(minute, time_1) as [Minute],
+        radio_button_1 as [ScheduleType]
       from AppCreator_be2bea7b where RECORD_NUMBER = ?
     """
     time_schedule = self.sql_helper.execute_query(query, [setting_id])
@@ -105,7 +106,7 @@ class OaDataService:
         left join {TABLE_CAMPAIGN_DASHBOARD} b on a.RECORD_NUMBER = b.RECORD_NUMBER
       ) t0
       right join {TABLE_EMAIL_LIST} t1 on t0.text_3 = t1.text_3 and t0.text_2 = t1.text_2
-      where t0.Campaign_ID = ? and t0.text_4 = 'FALSE'
+      where t0.Campaign_ID = ? --and t0.text_4 = 'FALSE'
     """
     email_to_send = self.sql_helper.execute_query(query, [setting_id])
     return email_to_send
