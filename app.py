@@ -1,7 +1,7 @@
 import threading
 import os
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, render_template_string
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -19,6 +19,7 @@ scheduler.start()
 
 app = Flask(__name__, static_folder='statics/')
 
+
 @app.route("/", methods=["GET"])
 def index():
     return "Server is running! Routes: " + ", ".join(sorted(r.rule for r in app.url_map.iter_rules())), 200
@@ -27,52 +28,94 @@ def index():
 def pong():
     return "pong-123", 200
 
-@app.route("/test_schedule/<int:id>", methods=["GET"])
-def test_schedule(id: int):
-    print(id)
-    job = scheduler.get_job(str(id))
-    if job is not None:
-        return "job already running", 200
-    
-    if id == 1:
-        scheduler.add_job(test, "date", run_date=datetime.now(), args=["one_time"])
-        return "date job", 200
-    elif id == 2:
-        scheduler.add_job(test, "interval", seconds=5, args=["interval"], id=str(id))
-        return "interval job", 200
-    elif id == 3:
-        scheduler.add_job(test, "cron", hour=14, minute=10, args=["daily"], id=str(id))
-        return "daily job", 200
-    else:
-        return "no action", 200
-    
-def test(target: str = ""):
-    print(f"test - {target}")
+def redirect_auto_close(status: bool, message: str, close_time: int = 5):
+    status_str = "Success" if status else "Failure"
+    status_color = "#28a745" if status else "#dc3545"
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Email Tracking</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #f8f9fa;
+                color: #343a40;
+                text-align: center;
+                padding-top: 100px;
+            }}
+            .header {{
+                font-size: 32px;
+                font-weight: bold;
+                margin-bottom: 30px;
+                color: #007bff;
+            }}
+            .status {{
+                font-size: 28px;
+                font-weight: bold;
+                color: {status_color};
+            }}
+            .message {{
+                font-size: 22px;
+                margin-top: 20px;
+            }}
+            .countdown {{
+                font-size: 18px;
+                margin-top: 40px;
+                color: #6c757d;
+            }}
+        </style>
+        <script type="text/javascript">
+            let countdown = {close_time};
+            function updateCountdown() {{
+                document.getElementById('countdown').textContent = countdown;
+                if (countdown === 0) {{
+                    window.open('', '_self', '');
+                    window.close();
+                }}
+                countdown--;
+            }}
+            window.onload = function() {{
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }};
+        </script>
+    </head>
+    <body>
+        <div class="header">Response from Email Tracking System</div>
+        <div class="status">Status: {status_str}</div>
+        <div class="message">{message}</div>
+        <div class="countdown">
+            This page will close automatically after <span id="countdown">{close_time}</span> seconds.
+        </div>
+    </body>
+    </html>
+    """
+    return render_template_string(html_content)
 
 @app.route('/run', methods=['GET'])
 def run_send():
     setting_id_param = request.args.get("id", None)
 
     if not setting_id_param:
-        return jsonify(success=False, message="Campaign ID not found"), 400
+        return redirect_auto_close(False, "Campaign ID not found")
     try:
         setting_id = int(setting_id_param)
     except ValueError:
-        return jsonify(success=False, message=f"Campaign ID invalid: {setting_id_param}"), 400
+        return redirect_auto_close(False, f"Campaign ID invalid: {setting_id_param}")
 
-    #threading.Thread(target=send_all_emails, args=(campaign_config_id,), daemon=True).start()
     scheduler.add_job(send_all_emails, "date", run_date=datetime.now(), args=[setting_id])
-    return jsonify(success=True, message=f"Start send email in background with campaign ID: {setting_id}"), 202
+    return redirect_auto_close(True, f"Start send email in background with campaign ID: {setting_id}")
 
 @app.route('/schedule', methods=['GET'])
 def schedule_send():
     setting_id_param = request.args.get("id", None)
     if not setting_id_param:
-        return jsonify(success=False, message="Campaign ID not found"), 400
+        return redirect_auto_close(False, "Campaign ID not found")
     try:
         setting_id = int(setting_id_param)
     except ValueError:
-        return jsonify(success=False, message=f"Campaign ID invalid: {setting_id_param}"), 400
+        return redirect_auto_close(False, f"Campaign ID invalid: {setting_id_param}")
     
     job = scheduler.get_job(str(setting_id))
     if job is None:
@@ -85,15 +128,15 @@ def schedule_send():
             schedule_date = datetime(now.year, now.month, now.day, hour=hour, minute=minute)
             schedule_date = schedule_date if schedule_date > now else schedule_date + timedelta(days=1)
             scheduler.add_job(send_all_emails, "date", run_date=schedule_date, args=[setting_id])
-            return jsonify(success=True, message=f"Start one time at {schedule_date.strftime("%d/%m/%Y - %H:%M")} send email in background with campaign ID: {setting_id}"), 202
+            return redirect_auto_close(True, f"Start one time at {schedule_date.strftime("%d/%m/%Y - %H:%M")} send email in background with campaign ID: {setting_id}")
         elif schedule_type == 2:
             scheduler.add_job(send_all_emails, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
-            return jsonify(success=True, message=f"Start daily ({hour} : {minute}) send email in background with campaign ID: {setting_id}"), 202
+            return redirect_auto_close(True, f"Start daily ({hour} : {minute}) send email in background with campaign ID: {setting_id}")
         else:
-            return jsonify(success=False, message=f"ScheduleType not found for campaign ID: {setting_id}"), 202
+            return redirect_auto_close(False, f"ScheduleType not found for campaign ID: {setting_id}")
     else:
         scheduler.remove_job(str(setting_id))
-        return jsonify(success=True, message=f"Stop daily send email in background with campaign ID: {setting_id}"), 202
+        return redirect_auto_close(True, f"Stop daily send email in background with campaign ID: {setting_id}")
 
 @app.route("/open", methods=["GET"])
 def track_open():
