@@ -1,12 +1,8 @@
 import requests
+from injector import inject
 
 from utils.mssql_helper import MsSqlHelper
 from utils.logger import Logger
-
-SQL_SERVER_IP    = '192.168.42.31'
-SQL_DATABASE     = 'UNIWIN_TRAIN'
-SQL_USER         = 'sa'
-SQL_PASSWORD     = 'Abc123!!!'
 
 TABLE_CAMPAIGN_SETTING = "AppCreator_be2bea7b"
 TABLE_CAMPAIGN_DASHBOARD = "AppCreator_9e421964"
@@ -15,8 +11,9 @@ TABLE_EMAIL_LIST = "AppCreator_4a9f8a7c_table_1"
 TABLE_TEMPLATE_EMAIL = "AppCreator_3a78932b"
 
 class OaDataService:
-  def __init__(self):
-    self.sql_helper = MsSqlHelper(SQL_SERVER_IP, SQL_DATABASE, SQL_USER, SQL_PASSWORD)
+  @inject
+  def __init__(self, sql_helper: MsSqlHelper):
+    self.sql_helper = sql_helper
     
   def get_dashboard_id_from_campaign_id(self, setting_id: int):
     query = f"""

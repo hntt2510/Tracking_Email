@@ -2,11 +2,12 @@ import smtplib
 import time
 import random
 
+from di_container import resolve
 from email.message import EmailMessage
 from services.oadata_service import OaDataService
 from utils.logger import Logger
 
-oadata_service = OaDataService()
+oadata_service = resolve(OaDataService)
 
 def open_smtp_connection(smtp_server, smtp_port, email_sender, email_password):
   try:

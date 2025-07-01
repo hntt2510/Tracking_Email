@@ -1,7 +1,12 @@
+from injector import singleton
 import pandas
 from typing import List, Tuple
 
 class ExcelHelper:
+  @singleton
+  def __init__(self):
+    pass
+  
   def read_data(sefl, file_path: str, columns: str, sheet: str = 0) -> Tuple[Tuple]:
     if file_path.endswith(".csv"):
       df = pandas.read_csv(file_path, usecols=columns)

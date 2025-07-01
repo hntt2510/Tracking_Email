@@ -12,7 +12,6 @@ from utils.logger import Logger
 load_dotenv()
 PORT = int(os.getenv("DEFAULT_PORT", 5000))
 
-oadata_service = OaDataService()
 scheduler = BackgroundScheduler()
 scheduler.start()
 

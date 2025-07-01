@@ -1,13 +1,15 @@
 from flask import Blueprint, request
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from di_container import resolve
 from services.oadata_service import OaDataService
 from send_email import send_all_emails
 from controllers.base import redirect_auto_close
 
 scheduler = BackgroundScheduler()
 scheduler.start()
-oadata_service = OaDataService()
+oadata_service = resolve(OaDataService)
 blueprint = Blueprint("action", __name__, url_prefix="/action")
 
 @blueprint.route("/run", methods=['GET'])

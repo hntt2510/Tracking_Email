@@ -1,7 +1,9 @@
 from flask import Blueprint, request, redirect
+
+from di_container import resolve
 from services.oadata_service import OaDataService
 
-oadata_service = OaDataService()
+oadata_service = resolve(OaDataService)
 blueprint = Blueprint("track", __name__, url_prefix="/track")
 
 @blueprint.route("/open", methods=["GET"])
