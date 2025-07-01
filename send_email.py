@@ -73,20 +73,12 @@ def send_all_emails(campaign_config_id):
     email_sender   = campaign_config_data['SMTPEmail']
     email_password = campaign_config_data['SMTPPass']
 
-    receiver_list = oadata_service.get_receiver_list(receiver_list_id)
-    if not receiver_list:
-      Logger.warning(f'Not found receiver list with id: {receiver_list_id}.')
-      return
-
     html_template_content, email_subject = oadata_service.get_email_template_html(email_template_id)
     if not html_template_content:
       Logger.warning(f'Not found email template with id: {email_template_id}.')
       return
 
     oadata_service.update_campaign_setting_status(campaign_config_id, 2) # status = 2 is running
-
-    # now we have trigger for that dont need this function
-    #sync_email_to_report(campaign_name, receiver_list)
     
     email_to_send = oadata_service.get_list_email_for_send(campaign_config_id)
 
@@ -104,7 +96,7 @@ def send_all_emails(campaign_config_id):
         try:
           msg = create_personalized_email({'FullName': full_name, 'Email': recipient, 'Company': company, 'Phone': phone}, html_template_content, email_subject, email_sender, campaign_name, campaign_config_id)
           smtp.send_message(msg)
-          oadata_service.update_campaign_dashboard_status_send(campaign_config_id, recipient, True)
+          oadata_service.update_campaign_dashboard_status(campaign_config_id, recipient, "SEND", True)
           Logger.info(f'Send mail success to {recipient} in campaign: {campaign_name}')
         except Exception as e:
           Logger.error(f'Internal exception when send mail to {recipient} in campaign: {campaign_name} - {e}')

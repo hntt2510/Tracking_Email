@@ -30,6 +30,59 @@ begin
 end
 go
 
+-- exec sp_crm_GetCampaignSettingById 29
+create or alter proc sp_crm_GetCampaignSettingById
+	@SettingId int
+as
+begin
+	select
+		RECORD_NUMBER as SettingID,
+		text_1_copy_3 as CampaignName,
+		drop_down_1 as ReceiverListID,
+		drop_down_1_copy_5 as EmailTemplateID,
+		text_1 as SMTPServer,
+		text_1_copy_4 as SMTPPort,
+		text_1_copy_1 as SMTPEmail,
+		text_1_copy_2 as SMTPPass
+	from AppCreator_be2bea7b
+	where RECORD_NUMBER = @SettingId
+end
+go
+
+-- exec sp_crm_GetTimeScheduleById 36
+create or alter proc sp_crm_GetTimeScheduleById
+	@SettingId int
+as
+begin
+	select 
+        datepart(hour, time_1) as [Hour],
+        datepart(minute, time_1) as [Minute],
+        radio_button_1 as [ScheduleType]
+	from AppCreator_be2bea7b where RECORD_NUMBER = @SettingId
+end
+go
+
+-- exec sp_crm_GetListReceiverNeedSend 36
+create or alter proc sp_crm_GetListReceiverNeedSend
+	@SettingId int
+as
+begin
+	select 
+		t0.Campaign_ID as [CampaignId],
+		t0.RECORD_NUMBER as [DashboardId],
+		t1.text_3 as Email,
+		t1.text_2 as FullName,
+		t1.text_4 as Company,
+		t1.text_5 as Phone
+	from (
+		select t3.Campaign_ID, t2.* from AppCreator_9e421964_table_1 t2
+		left join AppCreator_9e421964 t3 on t2.RECORD_NUMBER = t3.RECORD_NUMBER
+	) t0
+	right join AppCreator_4a9f8a7c_table_1 t1 on t0.text_3 = t1.text_3 and t0.text_2 = t1.text_2
+	where t0.Campaign_ID = @SettingId --and t0.text_4 = 'FALSE'
+end
+go
+
 -- exec sp_crm_GetImportReceiverFile 2
 create or alter proc sp_crm_GetImportReceiverFile
 	@ListId int
@@ -68,5 +121,38 @@ begin
 		Company, 
 		Phone 
 	from @Data
+end
+go
+
+create or alter proc sp_crm_CampaignSettingStatusAction
+	@SettingId int,
+	@Status int
+as
+begin
+	update AppCreator_be2bea7b
+		set radio_button_2 = @Status
+    where RECORD_NUMBER = @SettingId
+end
+go
+
+create or alter proc sp_crm_CampaignDashboardStatusAction
+	@SettingId int,
+	@Email nvarchar(100),
+	@UpdateColumn  nvarchar(30),
+	@Status nvarchar(30)
+as
+begin
+	declare @action nvarchar(max)
+	set @action = '
+	update AppCreator_9e421964_table_1
+		set ' + quotename(@UpdateColumn) + ' = @Status
+	where text_3 = @Email and RECORD_NUMBER = (select top 1 RECORD_NUMBER from AppCreator_9e421964 where Campaign_ID = @SettingId)
+	'
+	exec sp_executesql 
+		@action, 
+		N'@SettingId int, @Email nvarchar(100), @Status nvarchar(30)',
+		@SettingId = @SettingId,
+		@Email = @Email,
+		@Status = @Status
 end
 go

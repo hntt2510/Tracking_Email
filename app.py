@@ -4,7 +4,6 @@ from flask import Flask
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from services.oadata_service import OaDataService
 from controllers import action_controller, track_controller, test_controller, receivers_controller
 from controllers.base import redirect_auto_close
 from utils.logger import Logger
