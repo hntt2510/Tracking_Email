@@ -14,9 +14,9 @@ class Logger:
       return ""
   
   @staticmethod
-  def _log(level: str, msg: str):
+  def _log(level: str, msg: str, func: str = ""):
     timestamp = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
-    funcName = Logger._get_caller_name()
+    funcName = Logger._get_caller_name() if func == "" else func
     logMsg = f"[{timestamp}] -> [{level}] -> [func: {funcName}]-[message: {msg}]"
     with open(LOG_PATH, "a", encoding="utf-8") as f:
       f.write(logMsg + "\r\n")
@@ -32,3 +32,7 @@ class Logger:
   @staticmethod
   def error(msg: str):
     Logger._log("ERROR", msg)
+    
+  @staticmethod
+  def internal_err(func: str, msg: str):
+    Logger._log("ERROR", msg, func)

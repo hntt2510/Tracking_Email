@@ -1,4 +1,5 @@
-from flask import render_template_string
+from typing import Tuple, Any, Callable
+from flask import render_template_string, request
 
 def redirect_auto_close(status: bool, message: str, close_time: int = 5):
   status_str = "Success" if status else "Failure"
@@ -64,3 +65,13 @@ def redirect_auto_close(status: bool, message: str, close_time: int = 5):
   </html>
   """
   return render_template_string(html_content)
+
+def try_get_param(param_name: str, as_type: Callable = str) -> Tuple[bool, Any]:
+  value = request.args.get(param_name, None)
+  if value is None:
+    return False, None
+  
+  try:
+    return True, as_type(value)
+  except (ValueError, TypeError):
+    return False, None

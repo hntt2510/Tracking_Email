@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 from services.oadata_service import OaDataService
 from send_email import send_all_emails
-from controllers.base_controller import redirect_auto_close
+from controllers.base import redirect_auto_close
 
 scheduler = BackgroundScheduler()
 scheduler.start()
