@@ -1,5 +1,6 @@
-from injector import Binder, Injector
+from injector import Binder, Injector, singleton
 from typing import Type, TypeVar
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import config
 from utils.excel_helper import ExcelHelper
@@ -13,6 +14,10 @@ def configuration(binder: Binder):
   
   excel_helper = ExcelHelper()
   binder.bind(ExcelHelper, to=excel_helper)
+  
+  scheduler = BackgroundScheduler()
+  scheduler.start()
+  binder.bind(BackgroundScheduler, to=scheduler, scope=singleton)
   
 injector = Injector([configuration])
 

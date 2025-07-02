@@ -1,5 +1,7 @@
-from typing import Tuple, Any, Callable
+from typing import Tuple, Any, Callable, Type, TypeVar
 from flask import render_template_string, request
+
+T = TypeVar("T")
 
 def redirect_auto_close(status: bool, message: str, close_time: int = 5):
   status_str = "Success" if status else "Failure"
@@ -66,12 +68,12 @@ def redirect_auto_close(status: bool, message: str, close_time: int = 5):
   """
   return render_template_string(html_content)
 
-def try_get_param(param_name: str, as_type: Callable = str) -> Tuple[bool, Any]:
+def try_get_param(param_name: str, as_type: Callable[[str], T] = str, default: T = None) -> Tuple[bool, T]:
   value = request.args.get(param_name, None)
   if value is None:
-    return False, None
+    return False, default
   
   try:
     return True, as_type(value)
   except (ValueError, TypeError):
-    return False, None
+    return False, default

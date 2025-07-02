@@ -3,8 +3,8 @@ from flask import Blueprint, request
 import config
 from di_container import resolve
 from controllers.base import redirect_auto_close, try_get_param
-from services.receiver_service import ReceiverService
-from utils.excel_helper import ExcelHelper
+from services import ReceiverService
+from utils import ExcelHelper
 
 receiver_service = resolve(ReceiverService)
 excel_helper = resolve(ExcelHelper)

@@ -2,14 +2,15 @@ from flask import Blueprint, request
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
+import config
+from services import OaDataService, MailBoxService
 from di_container import resolve
-from services.oadata_service import OaDataService
-from send_email import send_all_emails
 from controllers.base import redirect_auto_close
 
-scheduler = BackgroundScheduler()
-scheduler.start()
 oadata_service = resolve(OaDataService)
+mailbox_service = resolve(MailBoxService)
+scheduler = resolve(BackgroundScheduler)
+
 blueprint = Blueprint("action", __name__, url_prefix="/action")
 
 @blueprint.route("/run", methods=['GET'])
@@ -23,7 +24,7 @@ def run_send():
   except ValueError:
     return redirect_auto_close(False, f"Campaign ID invalid: {setting_id_param}")
 
-  scheduler.add_job(send_all_emails, "date", run_date=datetime.now(), args=[setting_id])
+  scheduler.add_job(send_mail_func, "date", run_date=datetime.now(), args=[setting_id])
   return redirect_auto_close(True, f"Start send email in background with campaign ID: {setting_id}")
 
 @blueprint.route("/schedule", methods=['GET'])
@@ -46,13 +47,19 @@ def schedule_send():
       now = datetime.now()
       schedule_date = datetime(now.year, now.month, now.day, hour=hour, minute=minute)
       schedule_date = schedule_date if schedule_date > now else schedule_date + timedelta(days=1)
-      scheduler.add_job(send_all_emails, "date", run_date=schedule_date, args=[setting_id])
+      scheduler.add_job(send_mail_func, "date", run_date=schedule_date, args=[setting_id])
       return redirect_auto_close(True, f"Start one time at {schedule_date.strftime("%d/%m/%Y - %H:%M")} send email in background with campaign ID: {setting_id}")
     elif schedule_type == 2:
-      scheduler.add_job(send_all_emails, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
+      scheduler.add_job(send_mail_func, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
       return redirect_auto_close(True, f"Start daily ({hour} : {minute}) send email in background with campaign ID: {setting_id}")
     else:
       return redirect_auto_close(False, f"ScheduleType not found for campaign ID: {setting_id}")
   else:
     scheduler.remove_job(str(setting_id))
     return redirect_auto_close(True, f"Stop daily send email in background with campaign ID: {setting_id}")
+  
+def send_mail_func(setting_id: int):
+  if config.IS_DEV:
+    mailbox_service.send_all_emails_dev(setting_id)
+  else:
+    mailbox_service.send_all_emails(setting_id)

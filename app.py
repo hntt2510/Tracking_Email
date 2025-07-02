@@ -30,7 +30,7 @@ def error():
 
 @app.errorhandler(Exception)
 def exception_handle(e):
-  Logger.internal_err(traceback.format_exc(), "")
+  Logger.internal_err(traceback.format_exc(), str(e))
   return redirect_auto_close(False, "Internal Error Occurred")
 
 app.register_blueprint(action_controller.blueprint)
