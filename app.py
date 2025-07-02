@@ -4,7 +4,6 @@ from flask import Flask
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from services.oadata_service import OaDataService
 from controllers import action_controller, track_controller, test_controller, receivers_controller
 from controllers.base import redirect_auto_close
 from utils.logger import Logger
@@ -12,7 +11,6 @@ from utils.logger import Logger
 load_dotenv()
 PORT = int(os.getenv("DEFAULT_PORT", 5000))
 
-oadata_service = OaDataService()
 scheduler = BackgroundScheduler()
 scheduler.start()
 
@@ -32,7 +30,7 @@ def error():
 
 @app.errorhandler(Exception)
 def exception_handle(e):
-  Logger.internal_err(traceback.format_exc(), "")
+  Logger.internal_err(traceback.format_exc(), str(e))
   return redirect_auto_close(False, "Internal Error Occurred")
 
 app.register_blueprint(action_controller.blueprint)

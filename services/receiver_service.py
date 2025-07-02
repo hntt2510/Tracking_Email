@@ -1,3 +1,4 @@
+from injector import inject
 from typing import Tuple
 
 from utils.mssql_helper import MsSqlHelper
@@ -5,8 +6,9 @@ from utils.logger import Logger
 import config
 
 class ReceiverService:
-  def __init__(self):
-    self.sql_helper = MsSqlHelper(config.SQL_SERVER_IP, config.SQL_DATABASE, config.SQL_USER, config.SQL_PASSWORD)
+  @inject
+  def __init__(self, sql_helper: MsSqlHelper):
+    self.sql_helper = sql_helper
   
   def get_import_receiver_file(self, list_id: int):
     query = f"exec sp_crm_GetImportReceiverFile ?"

@@ -1,7 +1,8 @@
 import pyodbc
-from typing import List, Tuple
+from injector import singleton
 
 class MsSqlHelper:
+  @singleton
   def __init__(self, server, database, user, password):
     self.conn_str = (
       f'DRIVER={{ODBC Driver 17 for SQL Server}};'
