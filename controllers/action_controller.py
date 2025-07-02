@@ -3,12 +3,13 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import config
-from services import OaDataService, MailBoxService
+from services import OaDataService, MailBoxService, ScheduleService
 from di_container import resolve
 from controllers.base import redirect_auto_close
 
 oadata_service = resolve(OaDataService)
 mailbox_service = resolve(MailBoxService)
+schedule_service = resolve(ScheduleService)
 scheduler = resolve(BackgroundScheduler)
 
 blueprint = Blueprint("action", __name__, url_prefix="/action")
@@ -43,19 +44,21 @@ def schedule_send():
     hour = int(time_setting["Hour"])
     minute = int(time_setting["Minute"])
     schedule_type = int(time_setting["ScheduleType"])
+    schedule_date = datetime.now().replace(hour=hour, minute=minute)
+    
     if schedule_type == 1:
-      now = datetime.now()
-      schedule_date = datetime(now.year, now.month, now.day, hour=hour, minute=minute)
-      schedule_date = schedule_date if schedule_date > now else schedule_date + timedelta(days=1)
+      schedule_date = schedule_date if schedule_date > datetime.now() else schedule_date + timedelta(days=1)
       scheduler.add_job(send_mail_func, "date", run_date=schedule_date, args=[setting_id])
       return redirect_auto_close(True, f"Start one time at {schedule_date.strftime("%d/%m/%Y - %H:%M")} send email in background with campaign ID: {setting_id}")
     elif schedule_type == 2:
       scheduler.add_job(send_mail_func, "cron", hour=hour, minute=minute, args=[setting_id], id=str(setting_id))
+      schedule_service.insert_or_update_schedule(setting_id, "daily", schedule_date, "R")
       return redirect_auto_close(True, f"Start daily ({hour} : {minute}) send email in background with campaign ID: {setting_id}")
     else:
       return redirect_auto_close(False, f"ScheduleType not found for campaign ID: {setting_id}")
   else:
     scheduler.remove_job(str(setting_id))
+    schedule_service.insert_or_update_schedule(setting_id, "daily", datetime.now(), "S")
     return redirect_auto_close(True, f"Stop daily send email in background with campaign ID: {setting_id}")
   
 def send_mail_func(setting_id: int):

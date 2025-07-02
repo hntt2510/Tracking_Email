@@ -12,3 +12,7 @@ class ScheduleService:
     query = f"exec sp_crm_InsertOrUpdateScheduleHistory ?, ?, ?, ?"
     result = self.sql_helper.execute_non_query(query, [id, type, schedule_time, status])
     return result > 0
+  
+  def get_schedule_for_retry():
+    query = f"exec sp_crm_GetScheduleForRetry"
+    

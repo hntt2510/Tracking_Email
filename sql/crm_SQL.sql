@@ -7,6 +7,19 @@ create table crm_ScheduleHistory(
 )
 go
 
+create or alter proc sp_crm_GetScheduleForRetry
+as
+begin
+	select 
+		t0.*,
+		datepart(hour, t1.time_1) as [Hour],
+		datepart(minute, t1.time_1) as [Minute],
+		t1.radio_button_1 as [ScheduleType]
+	from crm_ScheduleHistory t0
+	left join AppCreator_be2bea7b t1 on t0.JobId = t1.RECORD_NUMBER and t1.IS_DELELTE <> 1
+end
+go
+
 create or alter proc sp_crm_InsertOrUpdateScheduleHistory
 @JobId int,
 @JobType nvarchar(20),
@@ -16,16 +29,16 @@ as
 begin
 	if exists (select * from crm_ScheduleHistory where JobId = @JobId)
 	begin
-		insert into crm_ScheduleHistory (JobId, JobType, ScheduleTime, JobStatus)
-		values (@JobId, @JobType, @ScheduleTime, @JobStatus)
-	end
-	else
-	begin
 		update crm_ScheduleHistory
 		set JobType = @JobType,
 			ScheduleTime = @ScheduleTime,
 			JobStatus = @JobStatus
 		where JobId = @JobId
+	end
+	else
+	begin
+		insert into crm_ScheduleHistory (JobId, JobType, ScheduleTime, JobStatus)
+		values (@JobId, @JobType, @ScheduleTime, @JobStatus)		
 	end
 end
 go

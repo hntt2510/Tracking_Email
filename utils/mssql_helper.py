@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 import pyodbc
 from injector import singleton
 
@@ -9,7 +10,7 @@ class MsSqlHelper:
       f'SERVER={server};DATABASE={database};UID={user};PWD={password}'
     )
 
-  def execute_query(self, query, params=None):
+  def execute_query(self, query: str, params: Any = None) -> List[Dict[str, Any]]:
     with pyodbc.connect(self.conn_str) as conn:
       with conn.cursor() as cursor:
         cursor.execute(query, params or [])
@@ -17,7 +18,7 @@ class MsSqlHelper:
         results = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return results
 
-  def execute_non_query(self, query, params=None):
+  def execute_non_query(self, query: str, params: Any = None) -> int:
     with pyodbc.connect(self.conn_str) as conn:
       with conn.cursor() as cursor:
         cursor.execute(query, params or [])
@@ -25,7 +26,7 @@ class MsSqlHelper:
         conn.commit()
     return row_count
 
-  def execute_scalar(self, query, params=None):
+  def execute_scalar(self, query: str, params: Any = None) -> Any:
     with pyodbc.connect(self.conn_str) as conn:
       with conn.cursor() as cursor:
         cursor.execute(query, params or [])
