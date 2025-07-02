@@ -7,4 +7,5 @@ pyodbc
 waitress
 apscheduler
 pandas
+openpyxl
 injector
