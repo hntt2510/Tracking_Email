@@ -25,7 +25,7 @@ class OaDataService:
   def get_list_email_for_send(self, setting_id: int):
     query = f"exec sp_crm_GetListReceiverNeedSend ?"
     email_to_send = self.sql_helper.execute_query(query, [setting_id])
-    return email_to_send if email_to_send.count != 0 else None
+    return email_to_send if email_to_send.__len__() != 0 else None
   
   def update_campaign_setting_status(self, setting_id: int, status: int = 2):
     query = f"exec sp_crm_CampaignSettingStatusAction ?, ?"

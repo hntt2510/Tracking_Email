@@ -13,6 +13,7 @@ class ScheduleService:
     result = self.sql_helper.execute_non_query(query, [id, type, schedule_time, status])
     return result > 0
   
-  def get_schedule_for_retry():
+  def get_schedule_for_retry(self):
     query = f"exec sp_crm_GetScheduleForRetry"
-    
+    schedules = self.sql_helper.execute_query(query)
+    return schedules if schedules.__len__() > 0 else None
